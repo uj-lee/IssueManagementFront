@@ -6,7 +6,11 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useCookies } from 'react-cookie';
 
-export function CreateProjectPage() {
+interface CreateProjectPageProps {
+  onClose: () => void;
+}
+
+export function CreateProjectPage({ onClose }: CreateProjectPageProps) {
   const [projectName, setProjectName] = useState('');
   const [cookies] = useCookies(['memberId']);
 
@@ -37,7 +41,7 @@ export function CreateProjectPage() {
   };
 //<Dialog defaultOpen> 변경
   return (
-    <Dialog>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogTrigger asChild>
         <Button variant="outline">Create New Project</Button>
       </DialogTrigger>

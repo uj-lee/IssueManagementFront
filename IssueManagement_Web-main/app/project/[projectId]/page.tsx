@@ -13,6 +13,9 @@ import { ResponsivePie } from "@nivo/pie"
 import { CreateIssueForm } from '@/components/create-issue_form';
 import { useRouter, useParams } from 'next/navigation';
 import { useCookies } from 'react-cookie';
+import Image from 'next/image'
+import { Avatar } from '@radix-ui/react-avatar';
+import debounce from 'lodash/debounce';
 
 type Priority = 'BLOCKER' | 'CRITICAL' | 'MAJOR' | 'MINOR' | 'TRIVIAL';
 type Status = 'NEW' | 'ASSIGNED' | 'RESOLVED' | 'CLOSED' | 'REOPENED';
@@ -37,7 +40,6 @@ type Project = {
   id: number;
   name: string;
   issue: Issue[];
-  // 필요한 다른 필드를 추가할 수 있습니다
 };
 
 type Issue = {
@@ -58,7 +60,9 @@ export default function ProjectScreenPage() {
   const router = useRouter();
   const params = useParams(); // Use useParams to get projectId
   const projectId = params.projectId; 
-  const [issues, setIssues] = useState<Issue[]>([]);
+  //const [issues, setIssues] = useState<Issue[]>([]);
+  const [allIssues, setAllIssues] = useState<Issue[]>([]);
+  const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
   const [cookies] = useCookies(['memberId']);
   const [searchQuery, setSearchQuery] = useState('');
   const [issuesPerMonth, setIssuesPerMonth] = useState<any[]>([]); 
@@ -69,20 +73,24 @@ export default function ProjectScreenPage() {
       fetchIssueStatistics();
     }
   }, [projectId, searchQuery]);
-  console.log(projectId)
+  //console.log(projectId)
+
+  const handleMyPageButtonClick = () => {
+    router.push('/my-page'); // 절대 경로 사용
+  };
 
   const fetchIssues = async () => {
     try {
       const url = `https://swe.mldljyh.tech/api/projects/${projectId}/issues`
-      const params = searchQuery ? `?title=${searchQuery}` : ''; 
-      const response = await fetch(`${url}${params}`, {
+      const response = await fetch(url, {
         headers: {
           'Cookie': `memberId=${cookies.memberId}`,
         },
       });
       if (response.ok) {
         const data = await response.json();
-        setIssues(data);
+        setAllIssues(data);
+        filterIssues(data); // 최초에 전체 이슈를 필터링합니다.
       } else {
         console.error('Failed to fetch issues');
       }
@@ -114,8 +122,15 @@ export default function ProjectScreenPage() {
     }
   };
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setSearchQuery(event.target.value);
+  };
+
+  const filterIssues = (issues = allIssues) => {
+    const filtered = issues.filter(issue =>
+      issue.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredIssues(filtered);
   };
 
   const deleteProject = async () => {
@@ -158,7 +173,7 @@ export default function ProjectScreenPage() {
           </Link>
         </nav>
         <div className="flex items-center w-full gap-4 md:ml-auto md:gap-2 lg:gap-4">
-          <form className="flex-1 ml-auto sm:flex-initial">
+        <form className="flex-1 ml-auto sm:flex-initial" onSubmit={e => e.preventDefault()}>
             <div className="relative">
               <SearchIcon
                 className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400"
@@ -172,19 +187,19 @@ export default function ProjectScreenPage() {
               />
             </div>
           </form>
-          <Button className="rounded-full" size="icon" variant="ghost">
-            <img
+          <Button className="rounded-full" size="icon" variant="ghost" onClick={handleMyPageButtonClick}>
+            <Image
               alt="Avatar"
               className="rounded-full"
               height="32"
-              src="/placeholder.svg"
+              src="/placeholder-user.jpg"
               style={{
                 aspectRatio: "32/32",
                 objectFit: "cover",
               }}
               width="32"
             />
-            <span className="sr-only">Toggle user menu</span>
+            {/*<span className="sr-only">Toggle user menu</span>*/}
           </Button>
         </div>
       </header>
@@ -214,7 +229,7 @@ export default function ProjectScreenPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {issues.map((issue) => (
+                  {filteredIssues.map((issue) => (
                     <TableRow key={issue.id}>
                       <TableCell>#{issue.id}</TableCell>
                       <TableCell>

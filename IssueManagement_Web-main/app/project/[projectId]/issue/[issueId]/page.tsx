@@ -126,28 +126,85 @@ export default function IssueDetailsPage() {
   };
 
   const handleUpdateStatus = async () => {
-    console.log('Updating status:', status, 'Assignee ID:', assigneeId); // 디버깅 로그 추가
+    console.log('Updating status:', status); // 디버깅 로그 추가
     try {
       const response = await fetch(`https://swe.mldljyh.tech/api/projects/${projectId}/issues/${issueId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status, assignee: assigneeId ? { id: assigneeId } : null }),
+        body: JSON.stringify({ status }),
         credentials: 'include',
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Response data:', data);
+        alert('Issue status updated successfully!');
+        setIssue(data); // 상태 업데이트 후 데이터 설정
+        setStatus(data.status); // 상태 반영
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update issue status:', errorData);
+        alert('Failed to update issue status.');
+      }
+    } catch (error) {
+      console.error('Error updating issue status:', error);
+      alert('An error occurred while updating the issue status.');
+    }
+  };
+
+  const handleUpdateAssignee = async () => {
+    console.log('Updating assignee ID:', assigneeId); // 디버깅 로그 추가
+    try {
+      const response = await fetch(`https://swe.mldljyh.tech/api/projects/${projectId}/issues/${issueId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ assignee: assigneeId ? { id: assigneeId } : null }),
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Response data:', data);
+        alert('Issue assignee updated successfully!');
+        setIssue(data); // 상태 업데이트 후 데이터 설정
+        setAssigneeId(data.assignee ? data.assignee.id : undefined); // 담당자 반영
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update issue assignee:', errorData);
+        alert('Failed to update issue assignee.');
+      }
+    } catch (error) {
+      console.error('Error updating issue assignee:', error);
+      alert('An error occurred while updating the issue assignee.');
+    }
+  };
+
+  const handleBothChange = async (newStatus: string, newAssigneeId: number | undefined) => {
+    console.log('Updating status:', newStatus, 'Assignee ID:', newAssigneeId); // 디버깅 로그 추가
+    try {
+      const response = await fetch(`https://swe.mldljyh.tech/api/projects/${projectId}/issues/${issueId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus, assignee: newAssigneeId ? { id: newAssigneeId } : null }),
+        credentials: 'include',
+      });
+      
       const responseData = await response.json();
       console.log('Response status:', response.status);
       console.log('Response data:', responseData);
-
+  
       if (response.ok) {
         alert('Issue status updated successfully!');
         setIssue(responseData); // 상태 업데이트 후 데이터 설정
         setStatus(responseData.status); // 상태 반영
-        //fetchIssueDetails(); // 상태 업데이트 후 이슈 정보 다시 가져오기
       } else {
-        const errorData = await response.json();
-        console.error('Failed to update issue status:', errorData);
+        console.error('Failed to update issue status:', responseData);
         alert('Failed to update issue status.');
       }
     } catch (error) {
@@ -198,10 +255,9 @@ export default function IssueDetailsPage() {
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Reported by</p>
                   <div className="flex items-center gap-2">
-                    <Avatar>
-                      <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                      <AvatarFallback>JD</AvatarFallback>
-                    </Avatar>
+                    <Avatar className="border-2 border-gray-300 rounded-full">
+                          <AvatarImage alt="@shadcn" src="/placeholder-user.jpg" className="rounded-full"/>
+                        </Avatar>
                     <div>
                       <p className="text-sm font-medium">{issue.reporter.username}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -215,9 +271,8 @@ export default function IssueDetailsPage() {
                   <div className="flex items-center gap-2">
                     {issue.assignee ? (
                       <>
-                        <Avatar>
-                          <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                          <AvatarFallback>JD</AvatarFallback>
+                        <Avatar className="border-2 border-gray-300 rounded-full">
+                          <AvatarImage alt="@shadcn" src="/placeholder-user.jpg" className="rounded-full"/>
                         </Avatar>
                         <div>
                           <p className="text-sm font-medium">{issue.assignee.username}</p>
@@ -233,9 +288,8 @@ export default function IssueDetailsPage() {
                   <div className="flex items-center gap-2">
                     {issue.fixer ? (
                       <>
-                        <Avatar>
-                          <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                          <AvatarFallback>JD</AvatarFallback>
+                        <Avatar className="border-2 border-gray-300 rounded-full">
+                          <AvatarImage alt="@shadcn" src="/placeholder-user.jpg" className="rounded-full"/>
                         </Avatar>
                         <div>
                           <p className="text-sm font-medium">{issue.fixer.username}</p>
@@ -301,7 +355,8 @@ export default function IssueDetailsPage() {
               <CardContent className="space-y-4">
                 <div className="grid gap-2">
                   <Label id="status-label">Status</Label>
-                  <Select value={status} aria-labelledby="status-label" onValueChange={setStatus}>
+                  <Select value={status} aria-labelledby="status-label" onValueChange={setStatus} // Convert value to number
+                    >
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -314,6 +369,7 @@ export default function IssueDetailsPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div><Button onClick={handleUpdateStatus}>Update Status</Button></div>
                   <div className="grid gap-2">
                     <Label id="assignee-label">Assignee</Label>
                     <Select 
@@ -334,7 +390,7 @@ export default function IssueDetailsPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                <Button onClick={handleUpdateStatus}>Update Status</Button>
+                <Button onClick={handleUpdateAssignee}>Update Assignee</Button>
               </CardContent>
             </Card>
             <Card>
@@ -360,7 +416,8 @@ export default function IssueDetailsPage() {
                         variant="outline"
                         onClick={() => {
                           setAssigneeId(assignee.id);
-                          //setStatus("ASSIGNED");
+                          setStatus("ASSIGNED");
+                          handleBothChange("ASSIGNED", assignee.id);
                         }}
                       >
                         Assign

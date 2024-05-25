@@ -86,8 +86,8 @@ export function CreateIssueForm({ projectId }: { projectId: number | string }) {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="priority">Priority</Label>
-              <Select value={priority} id="priority" onValueChange={setPriority}>
-                <SelectTrigger>
+              <Select value={priority} onValueChange={setPriority}>
+                <SelectTrigger id="priority">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>

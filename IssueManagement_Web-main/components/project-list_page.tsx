@@ -15,6 +15,12 @@ import { AddUserForm } from './add-user_form';
 import { CreateProjectPage } from './create-project_page';
 import { useCookies } from 'react-cookie';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image'
+
+type Project = {
+  id: number;
+  name: string;
+};
 
 export function ProjectListPage() {
   const [projects, setProjects] = useState([]);
@@ -26,6 +32,7 @@ export function ProjectListPage() {
   useEffect(() => {
     fetchProjects();
   }, []);
+
 
   const fetchProjects = async () => {
     try {
@@ -43,6 +50,10 @@ export function ProjectListPage() {
     }
   };
 
+  const handleMyPageButtonClick = () => {
+    router.push('/my-page'); // 절대 경로 사용
+  };
+
   const handleLogout = () => {
     removeCookie('memberId', { path: '/' });
     router.push('/'); // 로그아웃 후 로그인 페이지로 이동
@@ -56,10 +67,23 @@ export function ProjectListPage() {
           <span className="sr-only">Acme Inc</span>
         </Link>
         <div className="flex items-center gap-2">
-          <AddUserForm />
-          <CreateProjectPage />
+        <Button onClick={() => setShowAddUserForm(true)}>Add User</Button>
+          <Button variant="outline" onClick={() => setShowCreateProjectPage(true)}>Create Project</Button>
           <Button className="ml-auto" variant="ghost" onClick={handleLogout}>
             Logout
+          </Button>
+          <Button className="rounded-full" size="icon" variant="ghost" onClick={handleMyPageButtonClick}>
+            <Image
+              alt="Avatar"
+              className="rounded-full"
+              height="32"
+              src="/placeholder-user.jpg"
+              style={{
+                aspectRatio: "32/32",
+                objectFit: "cover",
+              }}
+              width="32"
+            />
           </Button>
         </div>
       </header>
@@ -80,7 +104,7 @@ export function ProjectListPage() {
               </tr>
             </thead>
             <tbody>
-              {projects.map((project) => (
+              {projects.map((project: Project) => (
                 <tr key={project.id} className="border-b dark:border-gray-700 bg-white">
                   <td className="px-4 py-3 font-medium">
                     <Link className="hover:underline" href={`/project/${project.id}`}>

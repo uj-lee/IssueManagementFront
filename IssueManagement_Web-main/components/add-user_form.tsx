@@ -7,7 +7,11 @@ import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { useCookies } from 'react-cookie';
 
-export function AddUserForm() {
+interface AddUserFormProps {
+  onClose: () => void;
+}
+
+export function AddUserForm({ onClose }: AddUserFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('DEV');
@@ -29,6 +33,7 @@ export function AddUserForm() {
         setUsername('');
         setPassword('');
         setRole('DEV');
+        onClose();
       } else {
         const errorData = await response.json();
         alert(`Failed to create user: ${errorData.message}`);
@@ -40,7 +45,7 @@ export function AddUserForm() {
   };
 //<Dialog defaultOpen> 변경
   return (
-    <Dialog>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogTrigger asChild>
         <Button>Add User</Button>
       </DialogTrigger>
@@ -67,8 +72,8 @@ export function AddUserForm() {
               <Label className="text-base" htmlFor="role">
                 Role
               </Label>
-              <Select value={role} id="role" onValueChange={setRole}>
-                <SelectTrigger className="w-full">
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger  id="role" className="w-full">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
