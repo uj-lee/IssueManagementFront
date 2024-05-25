@@ -1,43 +1,41 @@
-'use client'; 
+"use client";
 
-import React, { useState } from 'react';
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { CardContent, CardFooter, Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { useCookies } from 'react-cookie';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { CardContent, CardFooter, Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [, setCookie] = useCookies(['memberId']);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch('https://swe.mldljyh.tech/api/users/login', {
-        method: 'POST',
+      const response = await fetch("https://swe.mldljyh.tech/api/users/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (response.ok) {
         const data = await response.json();
-        setCookie('memberId', data.user.id, { path: '/' });
-        alert('Login successful!');
-        router.push('/project-list'); // 로그인 성공 후 프로젝트 목록 페이지로 이동
+        localStorage.setItem("token", data.token); // JWT 토큰을 로컬 스토리지에 저장
+        alert("Login successful!");
+        router.push("/project-list"); // 로그인 성공 후 프로젝트 목록 페이지로 이동
       } else {
-        alert('Login failed. Please check your credentials.');
+        alert("Login failed. Please check your credentials.");
       }
     } catch (error) {
-      console.error('Error during login:', error);
-      alert('An error occurred during login.');
+      console.error("Error during login:", error);
+      alert("An error occurred during login.");
     }
   };
 
