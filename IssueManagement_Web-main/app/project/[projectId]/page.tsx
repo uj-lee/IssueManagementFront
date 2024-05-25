@@ -1,25 +1,32 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import Link from "next/link"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { TabsTrigger, TabsList, TabsContent, Tabs } from "@/components/ui/tabs"
-import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { CardContent, Card, CardTitle, CardHeader } from "@/components/ui/card"
-import { ResponsiveLine } from "@nivo/line"
-import { ResponsiveBar } from "@nivo/bar"
-import { ResponsivePie } from "@nivo/pie"
-import { CreateIssueForm } from '@/components/create-issue_form';
-import { useRouter, useParams } from 'next/navigation';
-import { useCookies } from 'react-cookie';
-import Image from 'next/image'
-import { Avatar } from '@radix-ui/react-avatar';
-import debounce from 'lodash/debounce';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { TabsTrigger, TabsList, TabsContent, Tabs } from "@/components/ui/tabs";
+import {
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableCell,
+  TableBody,
+  Table,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { CardContent, Card, CardTitle, CardHeader } from "@/components/ui/card";
+import { ResponsiveLine } from "@nivo/line";
+import { ResponsiveBar } from "@nivo/bar";
+import { ResponsivePie } from "@nivo/pie";
+import { CreateIssueForm } from "@/components/create-issue_form";
+import { useRouter, useParams } from "next/navigation";
+import { useCookies } from "react-cookie";
+import Image from "next/image";
+import { Avatar } from "@radix-ui/react-avatar";
+import debounce from "lodash/debounce";
 
-type Priority = 'BLOCKER' | 'CRITICAL' | 'MAJOR' | 'MINOR' | 'TRIVIAL';
-type Status = 'NEW' | 'ASSIGNED' | 'RESOLVED' | 'CLOSED' | 'REOPENED';
-type Role = 'ADMIN' | 'PL' | 'DEV' | 'TESTER';
+type Priority = "BLOCKER" | "CRITICAL" | "MAJOR" | "MINOR" | "TRIVIAL";
+type Status = "NEW" | "ASSIGNED" | "RESOLVED" | "CLOSED" | "REOPENED";
+type Role = "ADMIN" | "PL" | "DEV" | "TESTER";
 
 type User = {
   id: number;
@@ -59,13 +66,13 @@ type Issue = {
 export default function ProjectScreenPage() {
   const router = useRouter();
   const params = useParams(); // Use useParams to get projectId
-  const projectId = params.projectId; 
+  const projectId = params.projectId;
   //const [issues, setIssues] = useState<Issue[]>([]);
   const [allIssues, setAllIssues] = useState<Issue[]>([]);
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
-  const [cookies] = useCookies(['memberId']);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [issuesPerMonth, setIssuesPerMonth] = useState<any[]>([]); 
+  const [cookies] = useCookies(["memberId"]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [issuesPerMonth, setIssuesPerMonth] = useState<any[]>([]);
 
   useEffect(() => {
     if (projectId) {
@@ -76,36 +83,38 @@ export default function ProjectScreenPage() {
   //console.log(projectId)
 
   const handleMyPageButtonClick = () => {
-    router.push('/my-page'); // 절대 경로 사용
+    router.push("/my-page"); // 절대 경로 사용
   };
 
   const fetchIssues = async () => {
     try {
-      const url = `https://swe.mldljyh.tech/api/projects/${projectId}/issues`
+      const url = `https://swe.mldljyh.tech/api/projects/${projectId}/issues`;
       const response = await fetch(url, {
-        headers: {
-          'Cookie': `memberId=${cookies.memberId}`,
-        },
+        method: "GET",
+        credentials: "include",
       });
       if (response.ok) {
         const data = await response.json();
         setAllIssues(data);
         filterIssues(data); // 최초에 전체 이슈를 필터링합니다.
       } else {
-        console.error('Failed to fetch issues');
+        throw new Error("Failed to fetch issues");
       }
     } catch (error) {
-      console.error('Error fetching issues:', error);
+      console.error("Error fetching issues:", error);
     }
   };
 
   const fetchIssueStatistics = async () => {
     try {
-      const response = await fetch('https://swe.mldljyh.tech/api/statistics/issuesPerMonth', {
-        headers: {
-          'Cookie': `memberId=${cookies.memberId}`,
-        },
-      });
+      const response = await fetch(
+        "https://swe.mldljyh.tech/api/statistics/issuesPerMonth",
+        {
+          headers: {
+            Cookie: `memberId=${cookies.memberId}`,
+          },
+        }
+      );
       if (response.ok) {
         const data = await response.json();
 
@@ -115,10 +124,10 @@ export default function ProjectScreenPage() {
         }));
         setIssuesPerMonth(formattedData);
       } else {
-        console.error('Failed to fetch issue statistics');
+        console.error("Failed to fetch issue statistics");
       }
     } catch (error) {
-      console.error('Error fetching issue statistics:', error);
+      console.error("Error fetching issue statistics:", error);
     }
   };
 
@@ -127,44 +136,20 @@ export default function ProjectScreenPage() {
   };
 
   const filterIssues = (issues = allIssues) => {
-    const filtered = issues.filter(issue =>
+    const filtered = issues.filter((issue) =>
       issue.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredIssues(filtered);
-  };
-
-  const deleteProject = async () => {
-    const confirmDelete = confirm('Are you sure you want to delete this project? This action cannot be undone.');
-    if (!confirmDelete) return;
-
-    try {
-      const response = await fetch(`https://swe.mldljyh.tech/api/projects/${projectId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': `memberId=${cookies.memberId}`,
-        },
-      });
-
-      if (response.ok) {
-        alert('Project deleted successfully!');
-        router.push('/project-list');
-      } else {
-        const errorData = await response.json();
-        console.error('Failed to delete project');
-        alert('Failed to delete project.');
-      }
-    } catch (error) {
-      console.error('Error deleting project:', error);
-      alert('An error occurred while deleting the project.');
-    }
   };
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-white dark:bg-gray-900">
       <header className="flex items-center h-16 px-4 border-b shrink-0 md:px-6">
         <nav className="flex-col hidden gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-          <Link className="flex items-center gap-2 text-lg font-semibold md:text-base" href="#">
+          <Link
+            className="flex items-center gap-2 text-lg font-semibold md:text-base"
+            href="#"
+          >
             <Package2Icon className="w-6 h-6" />
             <span className="sr-only">Project Name</span>
           </Link>
@@ -173,11 +158,12 @@ export default function ProjectScreenPage() {
           </Link>
         </nav>
         <div className="flex items-center w-full gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <form className="flex-1 ml-auto sm:flex-initial" onSubmit={e => e.preventDefault()}>
+          <form
+            className="flex-1 ml-auto sm:flex-initial"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <div className="relative">
-              <SearchIcon
-                className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400"
-              />
+              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
               <Input
                 className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
                 placeholder="Search issues..."
@@ -187,7 +173,12 @@ export default function ProjectScreenPage() {
               />
             </div>
           </form>
-          <Button className="rounded-full" size="icon" variant="ghost" onClick={handleMyPageButtonClick}>
+          <Button
+            className="rounded-full"
+            size="icon"
+            variant="ghost"
+            onClick={handleMyPageButtonClick}
+          >
             <Image
               alt="Avatar"
               className="rounded-full"
@@ -203,7 +194,10 @@ export default function ProjectScreenPage() {
           </Button>
         </div>
       </header>
-      <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
+      <main
+        className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10"
+        style={{ minHeight: "calc(100vh - 5rem)", paddingBottom: "5rem" }}
+      >
         <Tabs className="w-full" defaultValue="issues">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="issues">Issues</TabsTrigger>
@@ -215,7 +209,6 @@ export default function ProjectScreenPage() {
                 <div className="flex items-center gap-4">
                   <CreateIssueForm projectId={projectId as string} />
                   <Button variant="outline">Issue Statistics</Button>
-                  <Button variant="destructive" onClick={deleteProject}>Delete Project</Button>
                 </div>
               </div>
               <Table>
@@ -233,22 +226,25 @@ export default function ProjectScreenPage() {
                     <TableRow key={issue.id}>
                       <TableCell>#{issue.id}</TableCell>
                       <TableCell>
-                        <Link className="font-medium" href={`/project/${projectId}/issue/${issue.id}`}>
+                        <Link
+                          className="font-medium"
+                          href={`/project/${projectId}/issue/${issue.id}`}
+                        >
                           {issue.title}
                         </Link>
                       </TableCell>
                       <TableCell>
                         <Badge
                           variant={
-                            issue.status === 'NEW'
-                              ? 'primary'
-                              : issue.status === 'ASSIGNED'
-                              ? 'warning'
-                              : issue.status === 'RESOLVED'
-                              ? 'success'
-                              : issue.status === 'CLOSED'
-                              ? 'destructive'
-                              : 'secondary'
+                            issue.status === "NEW"
+                              ? "primary"
+                              : issue.status === "ASSIGNED"
+                              ? "warning"
+                              : issue.status === "RESOLVED"
+                              ? "success"
+                              : issue.status === "CLOSED"
+                              ? "destructive"
+                              : "secondary"
                           }
                         >
                           {issue.status}
@@ -257,14 +253,18 @@ export default function ProjectScreenPage() {
                       <TableCell>
                         {issue.assignee && (
                           <>
-                            <span className="font-medium">{issue.assignee.username}</span>
+                            <span className="font-medium">
+                              {issue.assignee.username}
+                            </span>
                           </>
                         )}
                       </TableCell>
                       <TableCell>
                         {issue.reporter && (
                           <>
-                            <span className="font-medium">{issue.reporter.username}</span>
+                            <span className="font-medium">
+                              {issue.reporter.username}
+                            </span>
                           </>
                         )}
                       </TableCell>
@@ -295,11 +295,15 @@ export default function ProjectScreenPage() {
           </TabsContent>
         </Tabs>
       </main>
-        <footer className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-gray-900 border-t shrink-0 md:px-6 z-10 flex justify-end">
-          <Button className="ml-auto" variant="outline" onClick={() => router.push('/project-list')}>
-            Back to Projects
-          </Button>
-        </footer>
+      <footer className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-gray-900 border-t shrink-0 md:px-6 z-10 flex justify-end">
+        <Button
+          className="ml-auto"
+          variant="outline"
+          onClick={() => router.push("/project-list")}
+        >
+          Back to Projects
+        </Button>
+      </footer>
     </div>
   );
 }
@@ -354,7 +358,7 @@ function BarChart(props: any) {
         ariaLabel="A bar chart showing data"
       />
     </div>
-  )
+  );
 }
 
 interface LineChartProps {
@@ -386,7 +390,7 @@ function LineChart({ data, className }: LineChartProps) {
           tickPadding: 16,
           tickRotation: -45,
           legendOffset: 36,
-          legendPosition: 'middle'
+          legendPosition: "middle",
         }}
         axisLeft={{
           tickSize: 0,
@@ -438,7 +442,7 @@ function Package2Icon(props: any) {
       <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9" />
       <path d="M12 3v6" />
     </svg>
-  )
+  );
 }
 
 function PieChart(props: any) {
@@ -484,7 +488,7 @@ function PieChart(props: any) {
         role="application"
       />
     </div>
-  )
+  );
 }
 
 function SearchIcon(props: any) {
@@ -504,5 +508,5 @@ function SearchIcon(props: any) {
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
     </svg>
-  )
+  );
 }

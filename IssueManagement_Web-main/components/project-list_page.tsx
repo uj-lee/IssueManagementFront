@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   PaginationPrevious,
   PaginationItem,
@@ -10,12 +10,13 @@ import {
   PaginationNext,
   PaginationContent,
   Pagination,
-} from "@/components/ui/pagination"
-import { AddUserForm } from './add-user_form';
-import { CreateProjectPage } from './create-project_page';
-import { useCookies } from 'react-cookie';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image'
+} from "@/components/ui/pagination";
+import { AddUserForm } from "./add-user_form";
+import { CreateProjectPage } from "./create-project_page";
+import { useCookies } from "react-cookie";
+import { useRouter } from "next/navigation";
+import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
+import Image from "next/image";
 
 type Project = {
   id: number;
@@ -23,56 +24,112 @@ type Project = {
 };
 
 export function ProjectListPage() {
-  const [projects, setProjects] = useState([]);
-  const [cookies, setCookie, removeCookie] = useCookies(['memberId']);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [user, setUser] = useState<any>(null); // 현재 로그인한 사용자 정보 5/24
+  const [cookies, setCookie, removeCookie] = useCookies(["memberId"]);
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showCreateProjectPage, setShowCreateProjectPage] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     fetchProjects();
+    fetchCurrentUser();
   }, []);
 
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch("https://swe.mldljyh.tech/api/users", {
+        method: "GET",
+        credentials: "include", // 쿠키 포함
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+        setUser(user);
+        console.log("사용자 정보:", user);
+        // 사용자 정보 처리
+      } else {
+        throw new Error("사용자 정보를 불러올 수 없습니다.");
+      }
+    } catch (error) {
+      console.error("사용자 정보 불러오기 실패:", error);
+    }
+  };
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch('https://swe.mldljyh.tech/api/projects', {
-        credentials: 'include', // 쿠키를 포함하도록 설정
+      const response = await fetch("https://swe.mldljyh.tech/api/projects", {
+        credentials: "include", // 쿠키를 포함하도록 설정
       });
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
       } else {
-        console.error('Failed to fetch projects');
+        console.error("Failed to fetch projects");
       }
     } catch (error) {
-      console.error('Error fetching projects:', error);
+      console.error("Error fetching projects:", error);
     }
   };
 
   const handleMyPageButtonClick = () => {
-    router.push('/my-page'); // 절대 경로 사용
+    router.push("/my-page"); // 절대 경로 사용
   };
 
   const handleLogout = () => {
-    removeCookie('memberId', { path: '/' });
-    router.push('/'); // 로그아웃 후 로그인 페이지로 이동
+    removeCookie("memberId", { path: "/" });
+    router.push("/"); // 로그아웃 후 로그인 페이지로 이동
+  };
+
+  const handleDeleteProject = async (projectId: number) => {
+    // 5/24
+    try {
+      const response = await fetch(
+        `https://swe.mldljyh.tech/api/projects/${projectId}`,
+        {
+          method: "DELETE",
+          credentials: "include", // 쿠키를 포함하도록 설정
+        }
+      );
+      if (response.ok) {
+        setProjects(projects.filter((project) => project.id !== projectId));
+        router.push("/projects");
+        router.refresh();
+      } else {
+        console.error("Failed to delete project");
+      }
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    }
   };
 
   return (
     <>
       <header className="flex items-center justify-between px-4 py-3 border-b bg-white dark:border-gray-800">
-        <Link className="flex items-center gap-2 text-lg font-semibold" href="#">
+        <Link
+          className="flex items-center gap-2 text-lg font-semibold"
+          href="#"
+        >
           <FrameIcon className="w-6 h-6" />
           <span className="sr-only">Acme Inc</span>
         </Link>
         <div className="flex items-center gap-2">
-        <Button onClick={() => setShowAddUserForm(true)}>Add User</Button>
-          <Button variant="outline" onClick={() => setShowCreateProjectPage(true)}>Create Project</Button>
+          <Button onClick={() => setShowAddUserForm(true)}>Add User</Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowCreateProjectPage(true)}
+          >
+            Create Project
+          </Button>
           <Button className="ml-auto" variant="ghost" onClick={handleLogout}>
             Logout
           </Button>
-          <Button className="rounded-full" size="icon" variant="ghost" onClick={handleMyPageButtonClick}>
+          <Button
+            className="rounded-full"
+            size="icon"
+            variant="ghost"
+            onClick={handleMyPageButtonClick}
+          >
             <Image
               alt="Avatar"
               className="rounded-full"
@@ -105,14 +162,39 @@ export function ProjectListPage() {
             </thead>
             <tbody>
               {projects.map((project: Project) => (
-                <tr key={project.id} className="border-b dark:border-gray-700 bg-white">
+                <tr
+                  key={project.id}
+                  className="border-b dark:border-gray-700 bg-white"
+                >
                   <td className="px-4 py-3 font-medium">
-                    <Link className="hover:underline" href={`/project/${project.id}`}>
+                    <Link
+                      className="hover:underline"
+                      href={`/project/${project.id}`}
+                    >
                       {project.name}
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Button size="sm" onClick={() => router.push(`/project/${project.id}`)}>
+                    {user && user.role === "ADMIN" && (
+                      <DeleteConfirmDialog
+                        trigger={
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="mr-2"
+                          >
+                            Delete
+                          </Button>
+                        }
+                        title="Delete Project"
+                        description="Are you sure you want to delete this project?"
+                        onConfirm={() => handleDeleteProject(project.id)}
+                      />
+                    )}
+                    <Button
+                      size="sm"
+                      onClick={() => router.push(`/project/${project.id}`)}
+                    >
                       Open
                     </Button>
                   </td>
@@ -122,11 +204,13 @@ export function ProjectListPage() {
           </table>
         </div>
       </main>
-      {showAddUserForm && <AddUserForm onClose={() => setShowAddUserForm(false)} />}
-      {showCreateProjectPage && <CreateProjectPage onClose={() => setShowCreateProjectPage(false)} />}
+      {showAddUserForm && (
+        <AddUserForm onClose={() => setShowAddUserForm(false)} />
+      )}
+      {showCreateProjectPage && (
+        <CreateProjectPage onClose={() => setShowCreateProjectPage(false)} />
+      )}
     </>
-
-
   );
 }
 
