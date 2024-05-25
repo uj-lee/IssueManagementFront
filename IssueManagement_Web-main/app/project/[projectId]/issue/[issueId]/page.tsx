@@ -16,6 +16,7 @@ import {
 import { useCookies } from "react-cookie";
 import { useRouter, useParams } from "next/navigation";
 import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
+import { EditIssueForm } from "@/components/updateIssue";
 
 export default function IssueDetailsPage() {
   const router = useRouter();
@@ -475,7 +476,7 @@ export default function IssueDetailsPage() {
                                   <Button
                                     variant="destructive"
                                     size="xs"
-                                    className="p-1 text-xs"
+                                    className="p-1 text-xs mr-2"
                                     onClick={() => setCommentToDelete(comment)}
                                   >
                                     Delete
@@ -488,7 +489,7 @@ export default function IssueDetailsPage() {
                             )}
                             {user && user.role === "ADMIN" && (
                               <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="xs"
                                 className="p-1 text-xs"
                                 onClick={() => {
@@ -618,10 +619,12 @@ export default function IssueDetailsPage() {
         </div>
       </main>
       <footer className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-gray-900 border-t shrink-0 md:px-6 z-10 flex justify-end">
-        <Button className="ml-2" variant="secondary">
-          {/* update issue */}
-          Update Issue
-        </Button>
+        {user && user.role === "ADMIN" && (
+          <EditIssueForm
+            projectId={Number(projectId)}
+            issueId={Number(issueId)}
+          />
+        )}
         <Button
           className="ml-2"
           variant="outline"
