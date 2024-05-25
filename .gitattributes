@@ -1,0 +1,16 @@
+app filter=lfs diff=lfs merge=lfs -text
+components filter=lfs diff=lfs merge=lfs -text
+tsconfig.json filter=lfs diff=lfs merge=lfs -text
+next-env.d.ts filter=lfs diff=lfs merge=lfs -text
+package-lock.json filter=lfs diff=lfs merge=lfs -text
+package.json filter=lfs diff=lfs merge=lfs -text
+postcss.config.js filter=lfs diff=lfs merge=lfs -text
+tailwind.config.ts filter=lfs diff=lfs merge=lfs -text
+components.json filter=lfs diff=lfs merge=lfs -text
+lib filter=lfs diff=lfs merge=lfs -text
+README.md filter=lfs diff=lfs merge=lfs -text
+next.config.mjs filter=lfs diff=lfs merge=lfs -text
+node_modules filter=lfs diff=lfs merge=lfs -text
+postcss.config.mjs filter=lfs diff=lfs merge=lfs -text
+public filter=lfs diff=lfs merge=lfs -text
+IssueManagement_Web-main/node_modules/@next/swc-win32-x64-msvc/next-swc.win32-x64-msvc.node filter=lfs diff=lfs merge=lfs -text
