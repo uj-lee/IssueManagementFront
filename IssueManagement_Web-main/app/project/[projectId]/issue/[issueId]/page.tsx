@@ -25,6 +25,7 @@ export default function IssueDetailsPage() {
   const issueId = params.issueId;
   const [cookies] = useCookies(["memberId"]);
   const [issue, setIssue] = useState<any>(null);
+  const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
   const [status, setStatus] = useState<string | undefined>(undefined); // 상태 업데이트를 위한 상태
   const [assigneeId, setAssigneeId] = useState<number | undefined>(undefined); // 담당자 업데이트를 위한 상태
@@ -83,6 +84,7 @@ export default function IssueDetailsPage() {
         setIssue(data);
         setStatus(data.status); // 초기 상태 설정
         setAssigneeId(data.assignee ? data.assignee.id : undefined); // 초기 담당자 설정
+        fetchComments();
       } else {
         throw new Error("Failed to fetch issue details");
       }
@@ -133,6 +135,25 @@ export default function IssueDetailsPage() {
     }
   };
 
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(
+        `https://swe.mldljyh.tech/api/projects/${projectId}/issues/${issueId}/comments`,
+        {
+          method: "GET",
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setComments(data);
+      } else {
+        throw new Error("댓글 목록을 불러올 수 없습니다.");
+      }
+    } catch (error) {
+      console.error("댓글 목록 불러오기 실패:", error);
+    }
+  };
+
   const handleAddComment = async () => {
     try {
       const response = await fetch(
@@ -151,6 +172,7 @@ export default function IssueDetailsPage() {
         const comment = await response.json();
         console.log("댓글 생성 성공:", comment);
         setNewComment("");
+        fetchComments();
         fetchIssueDetails(); // 댓글 추가 후 이슈 정보 다시 가져오기
       } else if (response.status === 400) {
         throw new Error(
@@ -187,6 +209,7 @@ export default function IssueDetailsPage() {
         console.log("댓글 수정 성공:", updatedComment);
         setCommentToEdit(null);
         setEditCommentContent("");
+        fetchComments();
         fetchIssueDetails(); // 댓글 수정 후 이슈 정보 다시 가져오기
       } else {
         throw new Error("Failed to update comment");
@@ -449,61 +472,96 @@ export default function IssueDetailsPage() {
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold">Comments</h2>
                 <div className="space-y-4">
-                  {issue.comments &&
-                    issue.comments.map((comment: any) => (
-                      <div key={comment.id} className="flex items-start gap-4">
-                        <Avatar>
-                          <AvatarImage
-                            alt="@shadcn"
-                            src="/placeholder-avatar.jpg"
-                          />
-                          <AvatarFallback>JD</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium">
-                              {comment.user.username}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(comment.createdAt).toLocaleString()}
-                            </p>
-                          </div>
-                          <p className="text-sm grow">{comment.content}</p>
-                          <div className="felx-row-reverse">
-                            {user && user.role === "ADMIN" && (
-                              <DeleteConfirmDialog
-                                trigger={
-                                  <Button
-                                    variant="destructive"
-                                    size="xs"
-                                    className="p-1 text-xs mr-2"
-                                    onClick={() => setCommentToDelete(comment)}
-                                  >
-                                    Delete
-                                  </Button>
-                                }
-                                title="Delete Comment"
-                                description="Are you sure you want to delete this comment?"
-                                onConfirm={handleDeleteComment}
-                              />
-                            )}
-                            {user && user.role === "ADMIN" && (
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="flex items-start gap-4">
+                      <Avatar>
+                        <AvatarImage
+                          alt="@shadcn"
+                          src="/placeholder-avatar.jpg"
+                        />
+                        <AvatarFallback>JD</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">
+                            {comment.username}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {new Date(
+                              comment.updatedAt || comment.createdAt
+                            ).toLocaleString()}
+                          </p>
+                        </div>
+                        {commentToEdit && commentToEdit.id === comment.id ? (
+                          <div className="flex flex-col gap-2">
+                            <Textarea
+                              value={editCommentContent}
+                              onChange={(e) =>
+                                setEditCommentContent(e.target.value)
+                              }
+                            />
+                            <div className="flex justify-end space-x-2">
                               <Button
+                                size="xs"
                                 variant="secondary"
+                                className="p-1 text-xs"
+                                onClick={() => setCommentToEdit(null)} // 수정 모드 취소
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                onClick={handleUpdateComment}
                                 size="xs"
                                 className="p-1 text-xs"
-                                onClick={() => {
-                                  setCommentToEdit(comment);
-                                  setEditCommentContent(comment.content);
-                                }}
                               >
-                                Edit
+                                Update
                               </Button>
-                            )}
+                            </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="flex">
+                            <p className="text-sm grow mr-3">
+                              {comment.content}
+                            </p>
+                            <div className="glow-0 flex justify-end">
+                              {user && user.role === "ADMIN" && (
+                                <Button
+                                  variant="secondary"
+                                  size="xs"
+                                  className="p-1 text-xs mr-2"
+                                  onClick={() => {
+                                    setCommentToEdit(comment);
+                                    setEditCommentContent(comment.content);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                              )}
+                              {user && user.role === "ADMIN" && (
+                                <DeleteConfirmDialog
+                                  trigger={
+                                    <Button
+                                      variant="destructive"
+                                      size="xs"
+                                      className="p-1 text-xs"
+                                      onClick={() =>
+                                        setCommentToDelete(comment)
+                                      }
+                                    >
+                                      Delete
+                                    </Button>
+                                  }
+                                  title="Delete Comment"
+                                  description="Are you sure you want to delete this comment?"
+                                  onConfirm={handleDeleteComment}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
                 <div className="grid gap-2">
                   <Label className="sr-only" htmlFor="new-comment">

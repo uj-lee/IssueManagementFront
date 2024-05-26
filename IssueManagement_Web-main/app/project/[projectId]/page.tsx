@@ -21,6 +21,7 @@ import { CreateIssueForm } from "@/components/create-issue_form";
 import { useRouter, useParams } from "next/navigation";
 import { useCookies } from "react-cookie";
 import Image from "next/image";
+import CommentDialog from "@/components/CommentDialog";
 import { Avatar } from "@radix-ui/react-avatar";
 import debounce from "lodash/debounce";
 
@@ -232,6 +233,10 @@ export default function ProjectScreenPage() {
                         >
                           {issue.title}
                         </Link>
+                        <CommentDialog
+                          projectId={projectId}
+                          issueId={issue.id}
+                        />
                       </TableCell>
                       <TableCell>
                         <Badge
