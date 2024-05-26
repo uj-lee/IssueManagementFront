@@ -26,7 +26,7 @@ import { Avatar } from "@radix-ui/react-avatar";
 import debounce from "lodash/debounce";
 
 type Priority = "BLOCKER" | "CRITICAL" | "MAJOR" | "MINOR" | "TRIVIAL";
-type Status = 'NEW' | 'ASSIGNED' | 'FIXED' | 'RESOLVED' | 'CLOSED' | 'REOPENED';
+type Status = "NEW" | "ASSIGNED" | "FIXED" | "RESOLVED" | "CLOSED" | "REOPENED";
 type Role = "ADMIN" | "PL" | "DEV" | "TESTER";
 
 type User = {
@@ -80,9 +80,29 @@ export default function ProjectScreenPage() {
     if (projectId) {
       fetchIssues();
       fetchIssueStatistics();
+      fetchCurrentUser();
     }
   }, [projectId, searchQuery]);
   //console.log(projectId)
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch("https://swe.mldljyh.tech/api/users", {
+        method: "GET",
+        credentials: "include", // 쿠키 포함
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+        setUser(user);
+        console.log("사용자 정보:", user);
+      } else {
+        throw new Error("사용자 정보를 불러올 수 없습니다.");
+      }
+    } catch (error) {
+      console.error("사용자 정보 불러오기 실패:", error);
+    }
+  };
 
   const handleMyPageButtonClick = () => {
     router.push("/my-page"); // 절대 경로 사용
@@ -243,17 +263,17 @@ export default function ProjectScreenPage() {
                       <TableCell>
                         <Badge
                           variant={
-                            issue.status === 'NEW'
-                              ? 'primary'
-                              : issue.status === 'ASSIGNED'
-                              ? 'warning'
-                              : issue.status === 'FIXED'
-                              ? 'fix'
-                              : issue.status === 'RESOLVED'
-                              ? 'success'
-                              : issue.status === 'CLOSED'
-                              ? 'destructive'
-                              : 'secondary'
+                            issue.status === "NEW"
+                              ? "primary"
+                              : issue.status === "ASSIGNED"
+                              ? "warning"
+                              : issue.status === "FIXED"
+                              ? "fix"
+                              : issue.status === "RESOLVED"
+                              ? "success"
+                              : issue.status === "CLOSED"
+                              ? "destructive"
+                              : "secondary"
                           }
                         >
                           {issue.status}

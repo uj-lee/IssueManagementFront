@@ -380,17 +380,17 @@ export default function IssueDetailsPage() {
                   </div>
                   <div
                     className={`rounded-full px-3 py-1 text-xs font-medium text-white ${
-                      issue.status === 'NEW'
-                        ? 'bg-gray-500'
-                        : issue.status === 'ASSIGNED'
-                        ? 'bg-yellow-500'
-                        : issue.status === 'FIXED'
-                        ? 'bg-indigo-500'
-                        : issue.status === 'RESOLVED'
-                        ? 'bg-green-500'
-                        : issue.status === 'CLOSED'
-                        ? 'bg-red-500'
-                        : 'bg-purple-500'
+                      issue.status === "NEW"
+                        ? "bg-gray-500"
+                        : issue.status === "ASSIGNED"
+                        ? "bg-yellow-500"
+                        : issue.status === "FIXED"
+                        ? "bg-indigo-500"
+                        : issue.status === "RESOLVED"
+                        ? "bg-green-500"
+                        : issue.status === "CLOSED"
+                        ? "bg-red-500"
+                        : "bg-purple-500"
                     }`}
                   >
                     {issue.status}
@@ -528,38 +528,39 @@ export default function IssueDetailsPage() {
                               {comment.content}
                             </p>
                             <div className="glow-0 flex justify-end">
-                              {user && user.role === "ADMIN" && (
-                                <Button
-                                  variant="secondary"
-                                  size="xs"
-                                  className="p-1 text-xs mr-2"
-                                  onClick={() => {
-                                    setCommentToEdit(comment);
-                                    setEditCommentContent(comment.content);
-                                  }}
-                                >
-                                  Edit
-                                </Button>
-                              )}
-                              {user && user.role === "ADMIN" && (
-                                <DeleteConfirmDialog
-                                  trigger={
+                              {(user && user.role === "ADMIN") ||
+                                (user && user.username === comment.username && (
+                                  <>
                                     <Button
-                                      variant="destructive"
+                                      variant="secondary"
                                       size="xs"
-                                      className="p-1 text-xs"
-                                      onClick={() =>
-                                        setCommentToDelete(comment)
-                                      }
+                                      className="p-1 text-xs mr-2"
+                                      onClick={() => {
+                                        setCommentToEdit(comment);
+                                        setEditCommentContent(comment.content);
+                                      }}
                                     >
-                                      Delete
+                                      Edit
                                     </Button>
-                                  }
-                                  title="Delete Comment"
-                                  description="Are you sure you want to delete this comment?"
-                                  onConfirm={handleDeleteComment}
-                                />
-                              )}
+                                    <DeleteConfirmDialog
+                                      trigger={
+                                        <Button
+                                          variant="destructive"
+                                          size="xs"
+                                          className="p-1 text-xs"
+                                          onClick={() =>
+                                            setCommentToDelete(comment)
+                                          }
+                                        >
+                                          Delete
+                                        </Button>
+                                      }
+                                      title="Delete Comment"
+                                      description="Are you sure you want to delete this comment?"
+                                      onConfirm={handleDeleteComment}
+                                    />
+                                  </>
+                                ))}
                             </div>
                           </div>
                         )}
@@ -600,7 +601,7 @@ export default function IssueDetailsPage() {
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                    <SelectItem value="NEW">New</SelectItem>
+                      <SelectItem value="NEW">New</SelectItem>
                       <SelectItem value="ASSIGNED">Assigned</SelectItem>
                       <SelectItem value="FIXED">Fixed</SelectItem>
                       <SelectItem value="RESOLVED">Resolved</SelectItem>

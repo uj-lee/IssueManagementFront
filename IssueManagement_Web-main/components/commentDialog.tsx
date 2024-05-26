@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 interface CommentDialogProps {
   projectId: string;
   issueId: string;
-  user: any; // 사용자 정보
+  user: any; // 로그인 중인 사용자 정보
 }
 
 const CommentDialog: React.FC<CommentDialogProps> = ({
