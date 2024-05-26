@@ -23,7 +23,7 @@ export default function IssueDetailsPage() {
   const params = useParams(); // Use useParams to get projectId
   const projectId = params.projectId;
   const issueId = params.issueId;
-  const [cookies] = useCookies(["memberId"]);
+  const [cookies] = useCookies(["jwt"]);
   const [issue, setIssue] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");

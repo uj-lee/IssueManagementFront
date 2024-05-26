@@ -71,7 +71,7 @@ export default function ProjectScreenPage() {
   //const [issues, setIssues] = useState<Issue[]>([]);
   const [allIssues, setAllIssues] = useState<Issue[]>([]);
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
-  const [cookies] = useCookies(["memberId"]);
+  const [cookies] = useCookies(["jwt"]);
   const [searchQuery, setSearchQuery] = useState("");
   const [issuesPerMonth, setIssuesPerMonth] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);

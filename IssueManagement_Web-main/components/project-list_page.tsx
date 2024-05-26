@@ -26,7 +26,7 @@ type Project = {
 export function ProjectListPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [user, setUser] = useState<any>(null); // 현재 로그인한 사용자 정보 5/24
-  const [cookies, setCookie, removeCookie] = useCookies(["memberId"]);
+  const [cookies, removeCookie] = useCookies(["jwt"]);
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showCreateProjectPage, setShowCreateProjectPage] = useState(false);
   const router = useRouter();
