@@ -8,7 +8,7 @@ import { useCookies } from 'react-cookie';
 import { useRouter } from 'next/navigation';
 
 type Role = 'ADMIN' | 'PL' | 'DEV' | 'TESTER';
-type Status = 'NEW' | 'ASSIGNED' | 'RESOLVED' | 'CLOSED' | 'REOPENED';
+type Status = 'NEW' | 'ASSIGNED' | 'FIXED' | 'RESOLVED' | 'CLOSED' | 'REOPENED';
 type User = {
     id: number;
     username: string;

@@ -15,6 +15,8 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-red-500 text-gray-50 dark:bg-red-900 dark:text-gray-50",
         outline: "text-gray-950 dark:text-gray-50",
+        fix: 
+          "border-transparent bg-indigo-500 text-gray-50 dark:bg-red-900",
         primary: 
           "border-transparent bg-gray-500 text-gray-50 dark:bg-red-900",
         warning: 

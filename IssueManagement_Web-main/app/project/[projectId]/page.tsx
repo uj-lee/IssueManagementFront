@@ -26,7 +26,7 @@ import { Avatar } from "@radix-ui/react-avatar";
 import debounce from "lodash/debounce";
 
 type Priority = "BLOCKER" | "CRITICAL" | "MAJOR" | "MINOR" | "TRIVIAL";
-type Status = "NEW" | "ASSIGNED" | "RESOLVED" | "CLOSED" | "REOPENED";
+type Status = 'NEW' | 'ASSIGNED' | 'FIXED' | 'RESOLVED' | 'CLOSED' | 'REOPENED';
 type Role = "ADMIN" | "PL" | "DEV" | "TESTER";
 
 type User = {
@@ -241,15 +241,17 @@ export default function ProjectScreenPage() {
                       <TableCell>
                         <Badge
                           variant={
-                            issue.status === "NEW"
-                              ? "primary"
-                              : issue.status === "ASSIGNED"
-                              ? "warning"
-                              : issue.status === "RESOLVED"
-                              ? "success"
-                              : issue.status === "CLOSED"
-                              ? "destructive"
-                              : "secondary"
+                            issue.status === 'NEW'
+                              ? 'primary'
+                              : issue.status === 'ASSIGNED'
+                              ? 'warning'
+                              : issue.status === 'FIXED'
+                              ? 'fix'
+                              : issue.status === 'RESOLVED'
+                              ? 'success'
+                              : issue.status === 'CLOSED'
+                              ? 'destructive'
+                              : 'secondary'
                           }
                         >
                           {issue.status}

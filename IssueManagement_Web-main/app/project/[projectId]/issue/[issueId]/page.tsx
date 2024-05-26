@@ -378,15 +378,17 @@ export default function IssueDetailsPage() {
                   </div>
                   <div
                     className={`rounded-full px-3 py-1 text-xs font-medium text-white ${
-                      issue.status === "NEW"
-                        ? "bg-gray-500"
-                        : issue.status === "ASSIGNED"
-                        ? "bg-yellow-500"
-                        : issue.status === "RESOLVED"
-                        ? "bg-green-500"
-                        : issue.status === "CLOSED"
-                        ? "bg-red-500"
-                        : "bg-purple-500"
+                      issue.status === 'NEW'
+                        ? 'bg-gray-500'
+                        : issue.status === 'ASSIGNED'
+                        ? 'bg-yellow-500'
+                        : issue.status === 'FIXED'
+                        ? 'bg-indigo-500'
+                        : issue.status === 'RESOLVED'
+                        ? 'bg-green-500'
+                        : issue.status === 'CLOSED'
+                        ? 'bg-red-500'
+                        : 'bg-purple-500'
                     }`}
                   >
                     {issue.status}
@@ -596,8 +598,9 @@ export default function IssueDetailsPage() {
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="NEW">New</SelectItem>
+                    <SelectItem value="NEW">New</SelectItem>
                       <SelectItem value="ASSIGNED">Assigned</SelectItem>
+                      <SelectItem value="FIXED">Fixed</SelectItem>
                       <SelectItem value="RESOLVED">Resolved</SelectItem>
                       <SelectItem value="CLOSED">Closed</SelectItem>
                       <SelectItem value="REOPENED">Reopened</SelectItem>
