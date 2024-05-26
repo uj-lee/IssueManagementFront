@@ -93,7 +93,7 @@ export function ProjectListPage() {
       );
       if (response.ok) {
         setProjects(projects.filter((project) => project.id !== projectId));
-        router.push("/projects");
+        router.push("/project-list");
         router.refresh();
       } else {
         console.error("Failed to delete project");
@@ -105,6 +105,15 @@ export function ProjectListPage() {
 
   return (
     <>
+      <style jsx global>{`
+        body, html {
+          background-color: white;
+          margin: 0;
+          padding: 0;
+          min-height: 100vh;
+        }
+      `}</style>
+
       <header className="flex items-center justify-between px-4 py-3 border-b bg-white dark:border-gray-800">
         <Link
           className="flex items-center gap-2 text-lg font-semibold"

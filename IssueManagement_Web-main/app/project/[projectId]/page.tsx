@@ -54,10 +54,10 @@ type Issue = {
   id: number;
   title: string;
   description: string;
-  reporter: User;
+  reporterUsername: String;
   reportedDate: string; // ISO 포맷 문자열로 가정
-  fixer?: User;
-  assignee?: User;
+  fixerUsername: String;
+  assigneeUsername: String;
   priority: Priority;
   status: Status;
   comments: Comment[];
@@ -280,19 +280,19 @@ export default function ProjectScreenPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {issue.assignee && (
+                        { (
                           <>
                             <span className="font-medium">
-                              {issue.assignee.username}
+                              {issue.assigneeUsername}
                             </span>
                           </>
                         )}
                       </TableCell>
                       <TableCell>
-                        {issue.reporter && (
+                        { (
                           <>
                             <span className="font-medium">
-                              {issue.reporter.username}
+                              {issue.reporterUsername}
                             </span>
                           </>
                         )}
