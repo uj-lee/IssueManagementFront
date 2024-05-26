@@ -17,6 +17,7 @@ import { useCookies } from "react-cookie";
 import { useRouter, useParams } from "next/navigation";
 import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import { EditIssueForm } from "@/components/updateIssue";
+import { set } from "lodash";
 
 export default function IssueDetailsPage() {
   const router = useRouter();
@@ -28,7 +29,9 @@ export default function IssueDetailsPage() {
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
   const [status, setStatus] = useState<string | undefined>(undefined); // 상태 업데이트를 위한 상태
-  const [assigneeUsername, setAssigneeUsername] = useState<string | undefined>(undefined);  // 담당자 업데이트를 위한 상태
+  const [assigneeUsername, setAssigneeUsername] = useState<string | undefined>(
+    undefined
+  ); // 담당자 업데이트를 위한 상태
   const [devUsers, setDevUsers] = useState<any[]>([]);
   const [recommendedAssignees, setRecommendedAssignees] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null); // 현재 로그인한 사용자 정보
@@ -257,7 +260,7 @@ export default function IssueDetailsPage() {
   };
 
   const handleUpdateAssignee = async () => {
-    console.log("Updating assignee Username:", assigneeUsername);  // 디버깅 로그 추가
+    console.log("Updating assignee Username:", assigneeUsername); // 디버깅 로그 추가
     try {
       const response = await fetch(
         `https://swe.mldljyh.tech/api/projects/${projectId}/issues/${issueId}`,
@@ -266,7 +269,7 @@ export default function IssueDetailsPage() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ assigneeUsername: assigneeUsername }), 
+          body: JSON.stringify({ assigneeUsername: assigneeUsername }),
           credentials: "include",
         }
       );
@@ -292,7 +295,12 @@ export default function IssueDetailsPage() {
     newStatus: string,
     newAssigneeUsername: string | undefined
   ) => {
-    console.log("Updating status:", newStatus, "Assignee Username:", newAssigneeUsername); // 디버깅 로그 추가
+    console.log(
+      "Updating status:",
+      newStatus,
+      "Assignee Username:",
+      newAssigneeUsername
+    ); // 디버깅 로그 추가
     try {
       const response = await fetch(
         `https://swe.mldljyh.tech/api/projects/${projectId}/issues/${issueId}`,
@@ -357,14 +365,15 @@ export default function IssueDetailsPage() {
 
   return (
     <>
-    <style jsx global>{`
-      body, html {
-        background-color: white;
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-      }
-    `}</style>
+      <style jsx global>{`
+        body,
+        html {
+          background-color: white;
+          margin: 0;
+          padding: 0;
+          min-height: 100vh;
+        }
+      `}</style>
 
       <div>
         <main
@@ -536,16 +545,19 @@ export default function IssueDetailsPage() {
                                 {comment.content}
                               </p>
                               <div className="glow-0 flex justify-end">
-                                {(user && user.role === "ADMIN") ||
-                                  (user && user.username === comment.username && (
+                                {user &&
+                                  (user.role === "ADMIN" ||
+                                    user.username === comment.username) && (
                                     <>
                                       <Button
-                                        variant="secondary"
                                         size="xs"
+                                        variant="secondary"
                                         className="p-1 text-xs mr-2"
                                         onClick={() => {
                                           setCommentToEdit(comment);
-                                          setEditCommentContent(comment.content);
+                                          setEditCommentContent(
+                                            comment.content
+                                          );
                                         }}
                                       >
                                         Edit
@@ -553,8 +565,8 @@ export default function IssueDetailsPage() {
                                       <DeleteConfirmDialog
                                         trigger={
                                           <Button
-                                            variant="destructive"
                                             size="xs"
+                                            variant="destructive"
                                             className="p-1 text-xs"
                                             onClick={() =>
                                               setCommentToDelete(comment)
@@ -568,7 +580,7 @@ export default function IssueDetailsPage() {
                                         onConfirm={handleDeleteComment}
                                       />
                                     </>
-                                  ))}
+                                  )}
                               </div>
                             </div>
                           )}
@@ -618,7 +630,9 @@ export default function IssueDetailsPage() {
                       </SelectContent>
                     </Select>
                     <div className="flex justify-end items-end h-full">
-                      <Button onClick={handleUpdateStatus}>Update Status</Button>
+                      <Button onClick={handleUpdateStatus}>
+                        Update Status
+                      </Button>
                     </div>
                   </div>
                   <div className="grid gap-2">
@@ -655,7 +669,10 @@ export default function IssueDetailsPage() {
                 <CardContent className="space-y-4">
                   <div className="flex flex-col gap-4">
                     {recommendedAssignees.map((assignee: any) => (
-                      <div key={assignee.id} className="flex items-center gap-4">
+                      <div
+                        key={assignee.id}
+                        className="flex items-center gap-4"
+                      >
                         <Avatar>
                           <AvatarImage
                             alt="@shadcn"
