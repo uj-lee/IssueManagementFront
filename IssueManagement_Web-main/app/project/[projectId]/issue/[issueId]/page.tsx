@@ -57,9 +57,12 @@ export default function IssueDetailsPage() {
   };
 
   useEffect(() => {
+    fetchCurrentUser(); // 사용자 정보를 처음에 한 번만 가져오기
+  }, []);
+
+  useEffect(() => {
     if (projectId && issueId) {
       fetchIssueDetails();
-      fetchCurrentUser();
       fetchRecommendedAssignees();
       fetchDevUsers();
     }
@@ -327,7 +330,6 @@ export default function IssueDetailsPage() {
   };
 
   const handleDeleteComment = async () => {
-    // 5/24
     if (!commentToDelete) return; // 수정된 부분: commentToDelete 확인
 
     try {

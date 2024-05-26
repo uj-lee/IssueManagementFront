@@ -16,11 +16,13 @@ import { Textarea } from "@/components/ui/textarea";
 interface CommentDialogProps {
   projectId: string;
   issueId: string;
+  user: any; // 사용자 정보
 }
 
 const CommentDialog: React.FC<CommentDialogProps> = ({
   projectId,
   issueId,
+  user,
 }) => {
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -209,31 +211,37 @@ const CommentDialog: React.FC<CommentDialogProps> = ({
                   <div className="flex">
                     <p className="grow ml-2 text-sm">{comment.content}</p>
                     <div className="flex justify-end space-x-2">
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        className="p-1 text-xs"
-                        onClick={() => {
-                          setCommentToEdit(comment);
-                          setEditCommentContent(comment.content);
-                        }}
-                      >
-                        Edit
-                      </Button>
-                      <DeleteConfirmDialog
-                        trigger={
-                          <Button
-                            size="xs"
-                            variant="destructive"
-                            className="p-1 text-xs"
-                          >
-                            Delete
-                          </Button>
-                        }
-                        title="Delete Comment"
-                        description="Are you sure you want to delete this comment?"
-                        onConfirm={() => handleDeleteComment(comment.id)}
-                      />
+                      {user &&
+                        (user.role === "ADMIN" ||
+                          user.username === comment.username) && (
+                          <>
+                            <Button
+                              size="xs"
+                              variant="outline"
+                              className="p-1 text-xs"
+                              onClick={() => {
+                                setCommentToEdit(comment);
+                                setEditCommentContent(comment.content);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <DeleteConfirmDialog
+                              trigger={
+                                <Button
+                                  size="xs"
+                                  variant="destructive"
+                                  className="p-1 text-xs"
+                                >
+                                  Delete
+                                </Button>
+                              }
+                              title="Delete Comment"
+                              description="Are you sure you want to delete this comment?"
+                              onConfirm={() => handleDeleteComment(comment.id)}
+                            />
+                          </>
+                        )}
                     </div>
                   </div>{" "}
                 </>

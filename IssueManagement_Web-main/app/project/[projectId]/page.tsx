@@ -74,6 +74,7 @@ export default function ProjectScreenPage() {
   const [cookies] = useCookies(["memberId"]);
   const [searchQuery, setSearchQuery] = useState("");
   const [issuesPerMonth, setIssuesPerMonth] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (projectId) {
@@ -236,6 +237,7 @@ export default function ProjectScreenPage() {
                         <CommentDialog
                           projectId={projectId}
                           issueId={issue.id}
+                          user={user}
                         />
                       </TableCell>
                       <TableCell>
