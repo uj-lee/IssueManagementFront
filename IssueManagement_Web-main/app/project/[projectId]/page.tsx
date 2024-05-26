@@ -132,9 +132,7 @@ export default function ProjectScreenPage() {
       const response = await fetch(
         "https://swe.mldljyh.tech/api/statistics/issuesPerMonth",
         {
-          headers: {
-            Cookie: `memberId=${cookies.memberId}`,
-          },
+          credentials: "include",
         }
       );
       if (response.ok) {
@@ -153,8 +151,32 @@ export default function ProjectScreenPage() {
     }
   };
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setSearchQuery(event.target.value);
+  const handleSearch = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const query = event.target.value;
+    setSearchQuery(query);
+
+    if (query.startsWith("/ai ") && query.endsWith("/") ) {
+      // 자연어 검색 처리
+      const userMessage = query.slice(4).trim().slice(0, -1).trim(); // "/ai " 이후의 문자열 추출 및 마지막 '/' 제거
+      try {
+        const response = await fetch(`https://swe.mldljyh.tech/api/projects/${projectId}/issues/searchbynl?userMessage=${userMessage}`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setFilteredIssues(data);
+        } else {
+          throw new Error("이슈 검색에 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("이슈 검색 실패:", error);
+      }
+    } else {
+      // 기존 검색 로직 유지
+      filterIssues();
+    }
   };
 
   const filterIssues = (issues = allIssues) => {
