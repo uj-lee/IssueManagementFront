@@ -21,7 +21,7 @@ import { CreateIssueForm } from "@/components/create-issue_form";
 import { useRouter, useParams } from "next/navigation";
 import { useCookies } from "react-cookie";
 import Image from "next/image";
-import CommentDialog from "@/components/CommentDialog";
+import CommentDialog from "@/components/commentDialog";
 import { Avatar } from "@radix-ui/react-avatar";
 import debounce from "lodash/debounce";
 

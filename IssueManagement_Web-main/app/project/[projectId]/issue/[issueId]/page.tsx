@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
@@ -388,7 +390,7 @@ export default function IssueDetailsPage() {
                   <div className="space-y-1">
                     <h1 className="text-2xl font-bold">{issue.title}</h1>
                     <p className="text-gray-500 dark:text-gray-400">
-                      {issue.description}
+                      {new Date(issue.reportedDate).toLocaleString()}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -486,7 +488,7 @@ export default function IssueDetailsPage() {
                 <div className="space-y-4">
                   <h2 className="text-lg font-semibold">Description</h2>
                   <div className="prose prose-sm dark:prose-invert">
-                    <p>{issue.description}</p>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{issue.description}</ReactMarkdown>
                   </div>
                 </div>
                 <Separator />
