@@ -26,7 +26,7 @@ type Project = {
 export function ProjectListPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [user, setUser] = useState<any>(null); // 현재 로그인한 사용자 정보 5/24
-  const [cookies, removeCookie] = useCookies(["jwt"]);
+  const [cookies, removeCookie] = useCookies(["jwt", "memberId"]);
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showCreateProjectPage, setShowCreateProjectPage] = useState(false);
   const router = useRouter();
@@ -81,6 +81,7 @@ export function ProjectListPage() {
     router.push("/"); // 로그아웃 후 로그인 페이지로 이동
   };
 
+  /*
   const handleDeleteProject = async (projectId: number) => {
     // 5/24
     try {
@@ -102,6 +103,7 @@ export function ProjectListPage() {
       console.error("Error deleting project:", error);
     }
   };
+  */
 
   return (
     <>
@@ -187,6 +189,7 @@ export function ProjectListPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-right">
+                    {/*
                     {user && user.role === "ADMIN" && (
                       <DeleteConfirmDialog
                         trigger={
@@ -203,6 +206,7 @@ export function ProjectListPage() {
                         onConfirm={() => handleDeleteProject(project.id)}
                       />
                     )}
+                  */}
                     <Button
                       size="sm"
                       onClick={() => router.push(`/project/${project.id}`)}
