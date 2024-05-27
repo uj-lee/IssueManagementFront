@@ -70,6 +70,7 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
   const [allIssues, setAllIssues] = useState<Issue[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [issueCount, setIssueCount] = useState(0); // issue count state
+  const [closeIssueCount, setCloseIssueCount] = useState(0); // close issue count state
   const [assignedIssueCount, setAssignedIssueCount] = useState(0); // assigned issue count state
   const [resolvedIssueCount, setResolvedIssueCount] = useState(0); // resolved issue count state
   const [remainingIssueCount, setRemainingIssueCount] = useState(0); // remaining issue count state
@@ -103,11 +104,14 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
           (issue: Issue) => issue.status === "ASSIGNED"
         ).length;
         setAssignedIssueCount(assignedCount); // assigned issue count state 업데이트
+        const closedCount = data.filter(
+          (issue: Issue) => issue.status === "CLOSED"
+        ).length;
         const resolvedCount = data.filter(
           (issue: Issue) => issue.status === "RESOLVED"
         ).length;
         setResolvedIssueCount(resolvedCount); // resolved issue count state 업데이트
-        setRemainingIssueCount(data.length - resolvedCount); // remaining issue count state 업데이트
+        setRemainingIssueCount(data.length - resolvedCount - closedCount); // remaining issue count state 업데이트
         const newCount = data.filter(
           (issue: Issue) => issue.status === "NEW"
         ).length;
@@ -564,7 +568,7 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                           indexBy="title"
                           margin={{ top: 20, right: 30, bottom: 80, left: 60 }}
                           padding={0.3}
-                          colors={["#5EC26A"]}
+                          colors={() => "#0A56D0"}
                           axisBottom={{
                             tickSize: 0,
                             tickPadding: 16,
