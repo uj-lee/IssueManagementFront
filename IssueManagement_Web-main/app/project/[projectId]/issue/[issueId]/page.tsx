@@ -134,6 +134,8 @@ export default function IssueDetailsPage() {
         const data = await response.json();
         console.log("Recommended assignees:", data); // 디버깅 로그 추가
         setRecommendedAssignees(data);
+      } else if (response.status === 401) {
+        alert("No permission to update issue assignee.");
       } else {
         const errorData = await response.json();
         console.error("Failed to fetch recommended assignees:", errorData);
@@ -248,16 +250,17 @@ export default function IssueDetailsPage() {
         alert("Issue status updated successfully!");
         setIssue(updatedIssue); // 상태 업데이트 후 데이터 설정
         setStatus(updatedIssue.status); // 상태 반영
-      } else if (response.status === 400) {
-        throw new Error("유효하지 않은 요청입니다. 수정 권한을 확인하세요.");
-      } else if (response.status === 404) {
-        throw new Error("해당 이슈를 찾을 수 없습니다.");
+      } else if (response.status === 401) {
+        alert("No permission to update issue status.");
+        setStatus(issue.status);
       } else {
+        console.log(response.status);
         throw new Error("이슈 수정에 실패했습니다.");
       }
     } catch (error) {
       console.error("이슈 수정 실패:", error);
       alert("An error occurred while updating the issue status.");
+      setStatus(issue.status);
     }
   };
 
@@ -282,14 +285,19 @@ export default function IssueDetailsPage() {
         alert("Issue assignee updated successfully!");
         setIssue(data); // 상태 업데이트 후 데이터 설정
         setAssigneeUsername(data.assigneeUsername); // 담당자 반영
+      } else if (response.status === 401) {
+        alert("No permission to update issue assignee.");
+        setAssigneeUsername(issue.assigneeUsername)
       } else {
         const errorData = await response.json();
         console.error("Failed to update issue assignee:", errorData);
         alert("Failed to update issue assignee.");
+        setAssigneeUsername(issue.assigneeUsername)
       }
     } catch (error) {
       console.error("Error updating issue assignee:", error);
       alert("An error occurred while updating the issue assignee.");
+      setAssigneeUsername(issue.assigneeUsername)
     }
   };
 
@@ -327,13 +335,14 @@ export default function IssueDetailsPage() {
         alert("Issue status updated successfully!");
         setIssue(responseData); // 상태 업데이트 후 데이터 설정
         setStatus(responseData.status); // 상태 반영
+      } else if (response.status === 401) {
+        alert("No permission to update issue assignee.");
       } else {
         console.error("Failed to update issue status:", responseData);
-        alert("Failed to update issue status.");
       }
     } catch (error) {
       console.error("Error updating issue status:", error);
-      alert("An error occurred while updating the issue status.");
+      alert("Issue update failed. Check your permissions.");
     }
   };
 
