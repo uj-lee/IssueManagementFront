@@ -72,7 +72,7 @@ export default function ProjectScreenPage() {
   //const [issues, setIssues] = useState<Issue[]>([]);
   const [allIssues, setAllIssues] = useState<Issue[]>([]);
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
-  const [cookies, removeCookie] = useCookies(["jwt", "memberId"]);
+  const [cookies] = useCookies(["jwt"]);
   const [searchQuery, setSearchQuery] = useState("");
   const [issuesPerMonth, setIssuesPerMonth] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -192,11 +192,6 @@ export default function ProjectScreenPage() {
     setFilteredIssues(filtered);
   };
 
-  const handleLogout = () => {
-    removeCookie("memberId", { path: "/" });
-    router.push("/"); // 로그아웃 후 로그인 페이지로 이동
-  };
-
   return (
     <div className="flex flex-col w-full min-h-screen bg-white dark:bg-gray-900">
       <header className="flex items-center h-16 px-4 border-b shrink-0 md:px-6">
@@ -228,30 +223,25 @@ export default function ProjectScreenPage() {
               />
             </div>
           </form>
-          <div className="flex items-center gap-2">
-            <Button className="ml-auto" variant="ghost" onClick={handleLogout}>
-              Logout
-            </Button>
-            <Button
+          <Button
+            className="rounded-full"
+            size="icon"
+            variant="ghost"
+            onClick={handleMyPageButtonClick}
+          >
+            <Image
+              alt="Avatar"
               className="rounded-full"
-              size="icon"
-              variant="ghost"
-              onClick={handleMyPageButtonClick}
-            >
-              <Image
-                alt="Avatar"
-                className="rounded-full"
-                height="32"
-                src="/placeholder-user.jpg"
-                style={{
-                  aspectRatio: "32/32",
-                  objectFit: "cover",
-                }}
-                width="32"
-              />
-              {/*<span className="sr-only">Toggle user menu</span>*/}
-            </Button>
-          </div>
+              height="32"
+              src="/placeholder-user.jpg"
+              style={{
+                aspectRatio: "32/32",
+                objectFit: "cover",
+              }}
+              width="32"
+            />
+            {/*<span className="sr-only">Toggle user menu</span>*/}
+          </Button>
         </div>
       </header>
       <main
@@ -293,10 +283,8 @@ export default function ProjectScreenPage() {
                           {issue.title}
                         </Link>
                         <CommentDialog
-                          projectId={
-                            Array.isArray(projectId) ? projectId[0] : projectId
-                          }
-                          issueId={issue.id.toString()}
+                          projectId={projectId}
+                          issueId={issue.id}
                           user={user}
                         />
                       </TableCell>
