@@ -34,3 +34,4 @@ IssueManagement_Web-main/.vercel
 # typescript
 *.tsbuildinfo
 IssueManagement_Web-main/next-env.d.ts
+IssueManagement_Web-main/package-lock.json
