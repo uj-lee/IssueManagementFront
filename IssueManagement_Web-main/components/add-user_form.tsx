@@ -34,7 +34,9 @@ export function AddUserForm({ onClose }: AddUserFormProps) {
         setPassword('');
         setRole('DEV');
         onClose();
-      } else {
+      } else if (response.status === 401) {
+        alert(`No permission to create user.`);
+      }else {
         const errorData = await response.json();
         alert(`Failed to create user: ${errorData.message}`);
       }
