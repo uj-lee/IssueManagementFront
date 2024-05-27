@@ -106,7 +106,8 @@ export function ProjectListPage() {
   return (
     <>
       <style jsx global>{`
-        body, html {
+        body,
+        html {
           background-color: white;
           margin: 0;
           padding: 0;
@@ -116,11 +117,13 @@ export function ProjectListPage() {
 
       <header className="flex items-center justify-between px-4 py-3 border-b bg-white dark:border-gray-800">
         <Link
-          className="flex items-center gap-2 text-lg font-semibold"
+          className="flex items-center ml-0.5 gap-2 text-xl font-semibold w-72"
           href="#"
         >
-          <FrameIcon className="w-6 h-6" />
-          <span className="sr-only">Acme Inc</span>
+          <div className="w-72 h-6 whitespace-nowrap">
+            Issue Management System
+          </div>
+          <span className="sr-only">Issue Management System</span>
         </Link>
         <div className="flex items-center gap-2">
           <Button onClick={() => setShowAddUserForm(true)}>Add User</Button>
