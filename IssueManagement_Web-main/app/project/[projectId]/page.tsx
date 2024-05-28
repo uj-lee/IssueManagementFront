@@ -88,7 +88,7 @@ export default function ProjectScreenPage() {
       fetchIssueStatistics();
       fetchCurrentUser();
     }
-  }, [projectId, searchQuery]);
+  }, [projectId, searchQuery, selectedStatus, filterAssignee, filterReporter]);
   //console.log(projectId)
 
   const fetchCurrentUser = async () => {
@@ -446,6 +446,13 @@ export default function ProjectScreenPage() {
                       </TableCell>
                     </TableRow>
                   ))}
+                   {filteredIssues.length < 4 && (
+                    <tr>
+                      <td colSpan={5}>
+                        <div style={{ height: '200px' }}></div>
+                      </td>
+                    </tr>
+                  )}
                 </TableBody>
               </Table>
             </div>
