@@ -76,6 +76,10 @@ export default function ProjectScreenPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [issuesPerMonth, setIssuesPerMonth] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
+  const [filterAssignee, setFilterAssignee] = useState(false);
+  const [filterReporter, setFilterReporter] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -186,11 +190,30 @@ export default function ProjectScreenPage() {
   };
 
   const filterIssues = (issues = allIssues) => {
-    const filtered = issues.filter((issue) =>
-      issue.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filtered = issues.filter((issue) => {
+      const matchesTitle = issue.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = selectedStatus ? issue.status === selectedStatus : true;
+      const matchesAssignee = filterAssignee ? issue.assigneeUsername === user?.username : true;
+      const matchesReporter = filterReporter ? issue.reporterUsername === user?.username : true;
+      return matchesTitle && matchesStatus && matchesAssignee && matchesReporter;
+    });
     setFilteredIssues(filtered);
   };
+
+  const handleStatusClick = (status: Status | null) => {
+    setSelectedStatus(status);
+    filterIssues(allIssues);
+    setDropdownOpen(false); // 드롭다운 닫기
+  };
+
+  const handleAssigneeFilterClick = () => {
+    setFilterAssignee((prev) => !prev);
+  };
+  
+  const handleReporterFilterClick = () => {
+    setFilterReporter(!filterReporter);
+  };
+
 
   const handleLogout = () => {
     removeCookie("memberId", { path: "/" });
@@ -276,10 +299,89 @@ export default function ProjectScreenPage() {
                   <TableRow>
                     <TableHead>ID</TableHead>
                     <TableHead>Title</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Assignee</TableHead>
-                    <TableHead>Reporter</TableHead>
-                  </TableRow>
+                    <TableHead>
+                    <div className="relative inline-block text-left">
+                      <div className="flex items-center">
+                        <p className="mr-2">Status</p>
+                        <Button
+                          onClick={() => setDropdownOpen(!dropdownOpen)}
+                          className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-2 py-1 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          {`${selectedStatus || "All"}`}
+                          <svg
+                            className="ml-1 h-4 w-4"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </Button>
+                      </div>
+                      {dropdownOpen && (
+                        <div
+                          className="origin-top-right absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                          role="menu"
+                          aria-orientation="vertical"
+                          aria-labelledby="options-menu"
+                        >
+                          <div className="py-1" role="none">
+                            {['NEW', 'ASSIGNED', 'FIXED', 'RESOLVED', 'CLOSED', 'REOPENED'].map((status) => (
+                              <a
+                                key={status}
+                                onClick={() => handleStatusClick(status as Status)}
+                                className={`${
+                                  selectedStatus === status ? 'bg-blue-500 text-white' : 'text-gray-700'
+                                } block px-4 py-2 text-sm cursor-pointer hover:bg-gray-100`}
+                                role="menuitem"
+                              >
+                                {status}
+                              </a>
+                            ))}
+                            <a
+                              onClick={() => handleStatusClick(null)}
+                              className="text-gray-700 block px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                              role="menuitem"
+                            >
+                              All
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                  <div className="flex items-center">
+                    <span>Assignee</span>
+                    <Button
+                      onClick={handleAssigneeFilterClick}
+                      className={`ml-2 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-2 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        filterAssignee ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50 focus:ring-indigo-500'
+                      }`}
+                    >
+                      me
+                    </Button>
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center">
+                    <span>Reporter</span>
+                    <Button
+                      onClick={handleReporterFilterClick}
+                      className={`ml-2 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-2 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        filterReporter ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50 focus:ring-indigo-500'
+                      }`}
+                    >
+                      me
+                    </Button>
+                  </div>
+                </TableHead>
+              </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredIssues.map((issue) => (
