@@ -23,6 +23,7 @@ import { useCookies } from "react-cookie";
 import Image from "next/image";
 import CommentDialog from "@/components/commentDialog";
 import StatisticsDialog from "@/components/issue-statistics";
+import Reports from "@/components/reports";
 import { Avatar } from "@radix-ui/react-avatar";
 import debounce from "lodash/debounce";
 
@@ -268,7 +269,11 @@ export default function ProjectScreenPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <CreateIssueForm projectId={projectId as string} />
-                  <StatisticsDialog projectId={projectId} />
+                  <StatisticsDialog
+                    projectName={
+                      Array.isArray(projectId) ? projectId[0] : projectId
+                    }
+                  />
                 </div>
               </div>
               <Table>
@@ -344,23 +349,9 @@ export default function ProjectScreenPage() {
             </div>
           </TabsContent>
           <TabsContent value="reports">
-            <div className="grid gap-8">
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Issues per Month</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <LineChart className="aspect-[9/4]" data={issuesPerMonth} />
-                  </CardContent>
-                </Card>
-                {/* TODO: Issue Resolution Time 구현 */}
-              </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                {/* TODO: Issues by Assignee 구현 */}
-                {/* TODO: Issues by Priority 구현 */}
-              </div>
-            </div>
+            <Reports
+              projectId={Array.isArray(projectId) ? projectId[0] : projectId}
+            />
           </TabsContent>
         </Tabs>
       </main>
