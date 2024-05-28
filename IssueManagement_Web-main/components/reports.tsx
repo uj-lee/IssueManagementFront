@@ -251,8 +251,6 @@ const Reports: React.FC<ReportsProps> = ({ projectId }) => {
     TRIVIAL: "#7DD3FC",
   };
 
-  const yTickUnit = 1; // y축 눈금 단위 설정
-
   const filterIssues = (issues = allIssues) => {
     const filtered = issues.filter((issue) =>
       issue.title.toLowerCase().includes(searchQuery.toLowerCase())

@@ -61,7 +61,9 @@ interface StatisticsDialogProps {
 const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
   const router = useRouter();
   const params = useParams(); // Use useParams to get projectId
-  const projectId = params.projectId;
+  const projectId = Array.isArray(params.projectId)
+    ? params.projectId[0]
+    : params.projectId;
   const issueId = params.issueId;
   const [cookies] = useCookies(["jwt"]);
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
@@ -77,7 +79,8 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
   const [newIssueCount, setNewIssueCount] = useState(0); // new issue count state
   const [reopenedIssueCount, setReopenedIssueCount] = useState(0); // reopened issue count state
   const [unassignedIssueCount, setUnassignedIssueCount] = useState(0);
-  const [weeklyIssues, setWeeklyIssues] = useState<any[]>([]); // state to store weekly issues
+  const [weeklyIssues, setWeeklyIssues] = useState<SortedDataType[]>([]); // state to store weekly issues
+  const [maxYValue, setMaxYValue] = useState<number>(0); // state to store max Y value
   const [assigneeIssueCount, setAssigneeIssueCount] = useState<any[]>([]); // state to store issue count by assignee
   const [topCommentIssues, setTopCommentIssues] = useState<any[]>([]); // state to store top comment issues
 
@@ -121,11 +124,13 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
         ).length;
         setReopenedIssueCount(reopenedCount); // reopened issue count state 업데이트
         setUnassignedIssueCount(newCount + reopenedCount);
-        setWeeklyIssues(calculateWeeklyIssues(data)); // calculate weekly issues
+        const { sortedData, maxYValue } = calculateWeeklyIssues(data); // calculate weekly issues
+        setWeeklyIssues(sortedData);
+        setMaxYValue(maxYValue);
         setAssigneeIssueCount(calculateAssigneeIssueCount(data)); // calculate assignee issue count
         // 각 이슈의 코멘트를 병렬로 가져오는 코드
         const commentPromises = data.map((issue: Issue) =>
-          fetchComments(projectId, issue.id)
+          fetchComments(projectId, issue.id.toString())
         );
         const commentsData = await Promise.all(commentPromises);
         setComments(commentsData); // 코멘트 데이터를 상태로 저장
@@ -170,6 +175,16 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
     };
   };
 
+  type SortedDataType = {
+    day: string;
+    NEW: number;
+    ASSIGNED: number;
+    FIXED: number;
+    RESOLVED: number;
+    CLOSED: number;
+    REOPENED: number;
+  };
+
   const calculateWeeklyIssues = (issues: Issue[]) => {
     const now = new Date();
     const weekAgo = new Date(now);
@@ -204,14 +219,26 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
     );
 
     // 날짜 순으로 정렬 추가
-    const sortedData = Object.entries(groupedByDay)
+    const sortedData: SortedDataType[] = Object.entries(groupedByDay)
       .map(([day, statuses]) => ({
         day,
-        ...statuses,
+        NEW: statuses.NEW,
+        ASSIGNED: statuses.ASSIGNED,
+        FIXED: statuses.FIXED,
+        RESOLVED: statuses.RESOLVED,
+        CLOSED: statuses.CLOSED,
+        REOPENED: statuses.REOPENED,
       }))
       .sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
 
-    return sortedData;
+    const maxValues = sortedData.map((d) => {
+      const values = Object.values(d).slice(1);
+      return Math.max(...values.map((value) => value as number));
+    });
+
+    const maxYValue = Math.max(...maxValues) + 2; // 데이터의 최대값보다 큰 값
+
+    return { sortedData, maxYValue };
   };
 
   const calculateAssigneeIssueCount = (issues: Issue[]) => {
@@ -401,29 +428,15 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                         tickPadding: 16,
                         tickValues: Array.from(
                           {
-                            length:
-                              Math.ceil(
-                                Math.max(
-                                  ...weeklyIssues.map((d) =>
-                                    Math.max(...Object.values(d).slice(1))
-                                  )
-                                )
-                              ) + 2,
-                          }, // 최대값을 포함하도록 tickValues 설정
+                            length: maxYValue + 3,
+                          },
                           (_, i) => i * yTickUnit
                         ),
                       }}
                       gridYValues={Array.from(
                         {
-                          length:
-                            Math.ceil(
-                              Math.max(
-                                ...weeklyIssues.map((d) =>
-                                  Math.max(...Object.values(d).slice(1))
-                                )
-                              )
-                            ) + 2,
-                        }, // 최대값을 포함하도록 gridYValues 설정
+                          length: maxYValue + 3,
+                        },
                         (_, i) => i * yTickUnit
                       )}
                       theme={{
