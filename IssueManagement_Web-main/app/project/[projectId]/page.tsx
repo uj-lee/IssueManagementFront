@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,7 @@ export default function ProjectScreenPage() {
   const [filterAssignee, setFilterAssignee] = useState(false);
   const [filterReporter, setFilterReporter] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isNLSearched, setIsNLSearched] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -166,6 +167,7 @@ export default function ProjectScreenPage() {
     if (query.startsWith("/ai ") && query.endsWith("/")) {
       // 자연어 검색 처리
       const userMessage = query.slice(4).trim().slice(0, -1).trim(); // "/ai " 이후의 문자열 추출 및 마지막 '/' 제거
+      setIsNLSearched(true);  // 자연어 검색 상태 설정
       try {
         const response = await fetch(
           `https://swe.mldljyh.tech/api/projects/${projectId}/issues/searchbynl?userMessage=${userMessage}`,
@@ -183,14 +185,19 @@ export default function ProjectScreenPage() {
         }
       } catch (error) {
         console.error("이슈 검색 실패:", error);
+      } finally {
+        setIsNLSearched(false);  // 기존 검색으로 전환 시 자연어 검색 상태 해제
       }
     } else {
       // 기존 검색 로직 유지
+      setIsNLSearched(false);  // 기존 검색으로 전환 시 자연어 검색 상태 해제
       filterIssues();
     }
   };
+  
 
-  const filterIssues = (issues = allIssues) => {
+  const filterIssues = useCallback((issues = allIssues) => {
+    if (isNLSearched) return;
     const filtered = issues.filter((issue) => {
       const matchesTitle = issue.title.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = selectedStatus ? issue.status === selectedStatus : true;
@@ -199,7 +206,7 @@ export default function ProjectScreenPage() {
       return matchesTitle && matchesStatus && matchesAssignee && matchesReporter;
     });
     setFilteredIssues(filtered);
-  };
+  }, [allIssues, searchQuery, selectedStatus, filterAssignee, filterReporter]);
 
   const handleStatusClick = (status: Status | null) => {
     setSelectedStatus(status);
