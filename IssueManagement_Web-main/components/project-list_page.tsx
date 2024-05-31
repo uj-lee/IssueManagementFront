@@ -2,20 +2,10 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  PaginationPrevious,
-  PaginationItem,
-  PaginationLink,
-  PaginationEllipsis,
-  PaginationNext,
-  PaginationContent,
-  Pagination,
-} from "@/components/ui/pagination";
 import { AddUserForm } from "./add-user_form";
 import { CreateProjectPage } from "./create-project_page";
 import { useCookies } from "react-cookie";
 import { useRouter } from "next/navigation";
-import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import Image from "next/image";
 
 type Project = {

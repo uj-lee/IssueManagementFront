@@ -1,16 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import {
   CardTitle,
   CardHeader,
   CardContent,
   Card,
-  CardFooter,
   CardDescription,
 } from "@/components/ui/card";
-import { useCookies } from "react-cookie";
-import { useRouter, useParams } from "next/navigation";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
 import CurrentDate from "./ui/current_date";
@@ -64,10 +60,8 @@ interface Datum {
 }
 
 const Reports: React.FC<ReportsProps> = ({ projectId }) => {
-  const [cookies] = useCookies(["jwt"]);
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
-  const [issue, setIssue] = useState<any>(null);
-  const [allIssues, setAllIssues] = useState<Issue[]>([]);
+  const [allIssues,] = useState<Issue[]>([]);
   const [issuesPerMonth, setIssuesPerMonth] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [issueCount, setIssueCount] = useState(0); // issue count state
@@ -78,58 +72,32 @@ const Reports: React.FC<ReportsProps> = ({ projectId }) => {
 
   useEffect(() => {
     if (projectId) {
-      fetchIssues();
-      fetchIssueStatistics();
+      fetchIssuesPerMonth();
+      fetchIssuesPerDay();
+      fetchIssuesPerDayAndPriority("MAJOR", setMajorIssuesPerDay);
+      fetchIssuesPerDayAndPriority("MINOR", setMinorIssuesPerDay);
+      fetchIssuesPerPriorityInMonth(); 
     }
   }, [projectId, searchQuery]);
 
-  const fetchIssues = async () => {
-    try {
-      const url = `https://swe.mldljyh.tech/api/projects/${projectId}/issues`;
-      const response = await fetch(url, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setAllIssues(data);
-        filterIssues(data); // 최초에 전체 이슈를 필터링합니다.
-        setIssueCount(data.length); // issueCount 설정
-        // 최근 30일간 일별 이슈 생성 개수 계산
-        const last30DaysIssues = calculateIssuesPerDay(data);
-        setIssuesPerDay(last30DaysIssues);
-        // 최근 7일간 일별 major 이슈 생성 개수 계산
-        const last7DaysMajorIssues = calculateMajorIssuesPerDay(data);
-        setMajorIssuesPerDay(last7DaysMajorIssues);
-        // 최근 7일간 일별 minor 이슈 생성 개수 계산
-        const last7DaysMinorIssues = calculateMinorIssuesPerDay(data);
-        setMinorIssuesPerDay(last7DaysMinorIssues);
-        // 최근 30일간 이슈를 Priority 별로 그룹화
-        const issuesByPriority = calculateIssuesByPriority(data);
-        setIssuesByPriority(issuesByPriority);
-      } else {
-        throw new Error("Failed to fetch issues");
-      }
-    } catch (error) {
-      console.error("Error fetching issues:", error);
-    }
-  };
-
-  const fetchIssueStatistics = async () => {
+  const fetchIssuesPerMonth = async () => {
     try {
       const response = await fetch(
-        "https://swe.mldljyh.tech/api/statistics/issuesPerMonth",
+        `https://swe.mldljyh.tech/api/projects/${projectId}/statistics/issuesPerMonth`,
         {
           credentials: "include",
         }
       );
       if (response.ok) {
         const data = await response.json();
-
         const formattedData = Object.entries(data).map(([month, count]) => ({
           x: month,
           y: count,
         }));
+
+        const lastMonthCount = (Object.values(data).pop() as number) || 0; // undefined일 경우 기본값 0
+
+        setIssueCount(lastMonthCount); // 마지막 달의 count를 issueCount로 설정
         setIssuesPerMonth(formattedData);
       } else {
         console.error("Failed to fetch issue statistics");
@@ -138,109 +106,84 @@ const Reports: React.FC<ReportsProps> = ({ projectId }) => {
       console.error("Error fetching issue statistics:", error);
     }
   };
-
-  const calculateIssuesPerDay = (issues: Issue[]) => {
-    const last30Days = Array.from({ length: 30 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date.toLocaleDateString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-      });
-    }).reverse();
-
-    const issuesPerDay = last30Days.map((date) => ({
-      x: date,
-      y: issues.filter(
-        (issue) =>
-          new Date(issue.reportedDate).toLocaleDateString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-          }) === date
-      ).length,
-    }));
-
-    return issuesPerDay;
-  };
-
-  const calculateMajorIssuesPerDay = (issues: Issue[]) => {
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date.toLocaleDateString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-      });
-    }).reverse();
-
-    const majorIssuesPerDay = last7Days.map((date) => ({
-      x: date,
-      y: issues.filter(
-        (issue) =>
-          new Date(issue.reportedDate).toLocaleDateString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-          }) === date && issue.priority === "MAJOR"
-      ).length,
-    }));
-
-    return majorIssuesPerDay;
-  };
-
-  const calculateMinorIssuesPerDay = (issues: Issue[]) => {
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date.toLocaleDateString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-      });
-    }).reverse();
-
-    const minorIssuesPerDay = last7Days.map((date) => ({
-      x: date,
-      y: issues.filter(
-        (issue) =>
-          new Date(issue.reportedDate).toLocaleDateString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-          }) === date && issue.priority === "MINOR"
-      ).length,
-    }));
-
-    return minorIssuesPerDay;
-  };
-
-  const calculateIssuesByPriority = (issues: Issue[]) => {
-    const last30Days = new Date();
-    last30Days.setDate(last30Days.getDate() - 30);
-
-    const issuesInLast30Days = issues.filter((issue) => {
-      const reportedDate = new Date(issue.reportedDate);
-      return reportedDate >= last30Days;
-    });
-
-    const issuesByPriority = issuesInLast30Days.reduce(
-      (acc: { [key in Priority]: number }, issue: Issue) => {
-        acc[issue.priority]++;
-        return acc;
-      },
-      {
-        BLOCKER: 0,
-        CRITICAL: 0,
-        MAJOR: 0,
-        MINOR: 0,
-        TRIVIAL: 0,
+  
+  const fetchIssuesPerDay = async () => {
+    try {
+      const response = await fetch(
+        `https://swe.mldljyh.tech/api/projects/${projectId}/statistics/issuesPerDayInMonth`,
+        {
+          credentials: "include",
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const formattedData = Object.entries(data).map(([day, count]) => ({
+          x: day, 
+          y: count,
+        }));
+        setIssuesPerDay(formattedData);
+      } else {
+        console.error("Failed to fetch issues per day");
       }
-    );
+    } catch (error) {
+      console.error("Error fetching issues per day:", error);
+    }
+  };
 
-    return Object.keys(issuesByPriority)
-      .map((priority) => ({
-        id: priority,
-        label: priority,
-        value: issuesByPriority[priority as Priority],
-      }))
-      .filter((item) => item.value > 0);
+  const fetchIssuesPerDayAndPriority = async (
+    priority: string,
+    setData: (data: any[]) => void
+  ) => {
+    try {
+      const response = await fetch(
+        `https://swe.mldljyh.tech/api/projects/${projectId}/statistics/issuesPerDayAndPriorityInWeek/${priority}`,
+        {
+          credentials: "include",
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const formattedData = Object.entries(data).map(([day, count]) => ({
+          x: day,
+          y: count,
+        }));
+        setData(formattedData); 
+      } else {
+        console.error(`Failed to fetch ${priority} issues per day`);
+      }
+    } catch (error) {
+      console.error(
+        `Error fetching ${priority} issues per day:`,
+        error
+      );
+    }
+  };
+
+
+  const fetchIssuesPerPriorityInMonth = async () => {
+    try {
+      const response = await fetch(
+        `https://swe.mldljyh.tech/api/projects/${projectId}/statistics/issuesPerPriorityInMonth`,
+        {
+          credentials: "include",
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const formattedData = Object.entries(data)
+          .map(([priority, count]) => ({
+            id: priority,
+            label: priority,
+            value: count,
+          }))
+          .filter((item) => (item.value as number) > 0); 
+        setIssuesByPriority(formattedData);
+      } else {
+        console.error("Failed to fetch issues by priority");
+      }
+    } catch (error) {
+      console.error("Error fetching issues by priority:", error);
+    }
   };
 
   const priorityColorMap: { [key in Priority]: string } = {

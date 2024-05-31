@@ -13,7 +13,6 @@ import {
   Table,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { CardContent, Card, CardTitle, CardHeader } from "@/components/ui/card";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsivePie } from "@nivo/pie";
@@ -24,9 +23,6 @@ import Image from "next/image";
 import CommentDialog from "@/components/commentDialog";
 import StatisticsDialog from "@/components/issue-statistics";
 import Reports from "@/components/reports";
-import { Avatar } from "@radix-ui/react-avatar";
-import debounce from "lodash/debounce";
-
 type Priority = "BLOCKER" | "CRITICAL" | "MAJOR" | "MINOR" | "TRIVIAL";
 type Status = "NEW" | "ASSIGNED" | "FIXED" | "RESOLVED" | "CLOSED" | "REOPENED";
 type Role = "ADMIN" | "PL" | "DEV" | "TESTER";
@@ -75,7 +71,6 @@ export default function ProjectScreenPage() {
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
   const [cookies, removeCookie] = useCookies(["jwt", "memberId"]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [issuesPerMonth, setIssuesPerMonth] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
   const [filterAssignee, setFilterAssignee] = useState(false);
@@ -86,7 +81,6 @@ export default function ProjectScreenPage() {
   useEffect(() => {
     if (projectId) {
       fetchIssues();
-      fetchIssueStatistics();
       fetchCurrentUser();
     }
   }, [projectId, searchQuery, selectedStatus, filterAssignee, filterReporter]);
@@ -131,30 +125,6 @@ export default function ProjectScreenPage() {
       }
     } catch (error) {
       console.error("Error fetching issues:", error);
-    }
-  };
-
-  const fetchIssueStatistics = async () => {
-    try {
-      const response = await fetch(
-        "https://swe.mldljyh.tech/api/statistics/issuesPerMonth",
-        {
-          credentials: "include",
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-
-        const formattedData = Object.entries(data).map(([month, count]) => ({
-          x: month,
-          y: count,
-        }));
-        setIssuesPerMonth(formattedData);
-      } else {
-        console.error("Failed to fetch issue statistics");
-      }
-    } catch (error) {
-      console.error("Error fetching issue statistics:", error);
     }
   };
 
@@ -322,7 +292,7 @@ export default function ProjectScreenPage() {
                           {`${selectedStatus || "All"}`}
                           <svg
                             className="ml-1 h-4 w-4"
-                            xmlns="http://www.w3.org/2000/svg"
+                            xmlns="https://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
                             fill="currentColor"
                             aria-hidden="true"
@@ -604,7 +574,7 @@ function Package2Icon(props: any) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -671,7 +641,7 @@ function SearchIcon(props: any) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
