@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { CardContent, CardFooter, Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export function LoginPage() {

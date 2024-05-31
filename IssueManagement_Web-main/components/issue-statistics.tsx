@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CardTitle, CardHeader, CardContent, Card } from "@/components/ui/card";
-import { useCookies } from "react-cookie";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { ResponsiveBar } from "@nivo/bar";
 import CurrentDate from "./ui/current_date";
 import {
@@ -59,246 +58,126 @@ interface StatisticsDialogProps {
 }
 
 const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
-  const router = useRouter();
   const params = useParams(); // Use useParams to get projectId
   const projectId = Array.isArray(params.projectId)
     ? params.projectId[0]
     : params.projectId;
-  const issueId = params.issueId;
-  const [cookies] = useCookies(["jwt"]);
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
-  const [issue, setIssue] = useState<any>(null);
-  const [comments, setComments] = useState<Comment[][]>([]); // 각 이슈의 코멘트를 저장하는 배열
-  const [allIssues, setAllIssues] = useState<Issue[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [issueCount, setIssueCount] = useState(0); // issue count state
-  const [closeIssueCount, setCloseIssueCount] = useState(0); // close issue count state
-  const [assignedIssueCount, setAssignedIssueCount] = useState(0); // assigned issue count state
-  const [resolvedIssueCount, setResolvedIssueCount] = useState(0); // resolved issue count state
-  const [remainingIssueCount, setRemainingIssueCount] = useState(0); // remaining issue count state
-  const [newIssueCount, setNewIssueCount] = useState(0); // new issue count state
-  const [reopenedIssueCount, setReopenedIssueCount] = useState(0); // reopened issue count state
-  const [unassignedIssueCount, setUnassignedIssueCount] = useState(0);
-  const [weeklyIssues, setWeeklyIssues] = useState<SortedDataType[]>([]); // state to store weekly issues
-  const [maxYValue, setMaxYValue] = useState<number>(0); // state to store max Y value
+  const [allIssues] = useState<Issue[]>([]);
+  const [searchQuery] = useState("");
+  const [issueStatistics, setIssueStatistics] = useState<any>({});
+  const [weeklyIssues, setWeeklyIssues] = useState<any[]>([]); // state to store weekly issues
   const [assigneeIssueCount, setAssigneeIssueCount] = useState<any[]>([]); // state to store issue count by assignee
   const [topCommentIssues, setTopCommentIssues] = useState<any[]>([]); // state to store top comment issues
 
   useEffect(() => {
     if (projectId) {
-      fetchIssues();
+      fetchIssueStatistics();
+      fetchWeeklyIssues();
+      fetchIssuesPerFixer();
+      fetchTopCommentIssues();
     }
   }, [projectId, searchQuery]);
   //console.log(projectId)
 
-  const fetchIssues = async () => {
+  const fetchIssueStatistics = async () => {
     try {
-      const url = `https://swe.mldljyh.tech/api/projects/${projectId}/issues`;
-      const response = await fetch(url, {
-        method: "GET",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `https://swe.mldljyh.tech/api/projects/${projectId}/statistics/issueStatusCounts`,
+        {
+          method: "GET",
+        }
+      );
+
       if (response.ok) {
         const data = await response.json();
-        setAllIssues(data);
-        filterIssues(data); // 최초에 전체 이슈를 필터링합니다.
-        setIssueCount(data.length);
-        const assignedCount = data.filter(
-          (issue: Issue) => issue.status === "ASSIGNED"
-        ).length;
-        setAssignedIssueCount(assignedCount); // assigned issue count state 업데이트
-        const closedCount = data.filter(
-          (issue: Issue) => issue.status === "CLOSED"
-        ).length;
-        const resolvedCount = data.filter(
-          (issue: Issue) => issue.status === "RESOLVED"
-        ).length;
-        setResolvedIssueCount(resolvedCount); // resolved issue count state 업데이트
-        setRemainingIssueCount(data.length - resolvedCount - closedCount); // remaining issue count state 업데이트
-        const newCount = data.filter(
-          (issue: Issue) => issue.status === "NEW"
-        ).length;
-        setNewIssueCount(newCount); // new issue count state 업데이트
-        const reopenedCount = data.filter(
-          (issue: Issue) => issue.status === "REOPENED"
-        ).length;
-        setReopenedIssueCount(reopenedCount); // reopened issue count state 업데이트
-        setUnassignedIssueCount(newCount + reopenedCount);
-        const { sortedData, maxYValue } = calculateWeeklyIssues(data); // calculate weekly issues
-        setWeeklyIssues(sortedData);
-        setMaxYValue(maxYValue);
-        setAssigneeIssueCount(calculateAssigneeIssueCount(data)); // calculate assignee issue count
-        // 각 이슈의 코멘트를 병렬로 가져오는 코드
-        const commentPromises = data.map((issue: Issue) =>
-          fetchComments(projectId, issue.id.toString())
-        );
-        const commentsData = await Promise.all(commentPromises);
-        setComments(commentsData); // 코멘트 데이터를 상태로 저장
-
-        setTopCommentIssues(calculateTopCommentIssues(data, commentsData)); // calculate top comment issues
+        setIssueStatistics(data);
       } else {
-        throw new Error("Failed to fetch issues");
+        console.error("Error fetching issue statistics");
       }
     } catch (error) {
-      console.error("Error fetching issues:", error);
+      console.error("Error fetching issue statistics:", error);
     }
   };
 
-  const fetchComments = async (projectId: string, issueId: string) => {
+  const fetchWeeklyIssues = async () => {
     try {
       const response = await fetch(
-        `https://swe.mldljyh.tech/api/projects/${projectId}/issues/${issueId}/comments`,
+        `https://swe.mldljyh.tech/api/projects/${projectId}/statistics/issuesPerDayAndStatusInWeek`,
         {
           method: "GET",
         }
       );
       if (response.ok) {
         const data = await response.json();
-        return data; // 코멘트 데이터를 반환
+        const sortedData = Object.entries(data)
+          .map(([day, statuses]) => ({
+            day,
+            ...(statuses as object),
+          }))
+         setWeeklyIssues(sortedData);
       } else {
-        throw new Error("댓글 목록을 불러올 수 없습니다.");
+        console.error("Error fetching weekly issues");
       }
     } catch (error) {
-      console.error("댓글 목록 불러오기 실패:", error);
-      return []; // 에러가 발생하면 빈 배열을 반환
+      console.error("Error fetching weekly issues:", error);
     }
   };
 
-  type WeeklyIssues = {
-    [key: string]: {
-      NEW: number;
-      ASSIGNED: number;
-      FIXED: number;
-      RESOLVED: number;
-      CLOSED: number;
-      REOPENED: number;
-    };
-  };
-
-  type SortedDataType = {
-    day: string;
-    NEW: number;
-    ASSIGNED: number;
-    FIXED: number;
-    RESOLVED: number;
-    CLOSED: number;
-    REOPENED: number;
-  };
-
-  const calculateWeeklyIssues = (issues: Issue[]) => {
-    const now = new Date();
-    const weekAgo = new Date(now);
-    weekAgo.setDate(now.getDate() - 7);
-
-    const weeklyIssues = issues.filter((issue) => {
-      const reportedDate = new Date(issue.reportedDate);
-      return reportedDate >= weekAgo && reportedDate <= now;
-    });
-
-    const groupedByDay: WeeklyIssues = weeklyIssues.reduce(
-      (acc: WeeklyIssues, issue: Issue) => {
-        const day = new Date(issue.reportedDate).toLocaleDateString("en-US", {
-          month: "2-digit",
-          day: "2-digit",
-          weekday: "short",
-        });
-        if (!acc[day]) {
-          acc[day] = {
-            NEW: 0,
-            ASSIGNED: 0,
-            FIXED: 0,
-            RESOLVED: 0,
-            CLOSED: 0,
-            REOPENED: 0,
-          };
+  const fetchIssuesPerFixer = async () => {
+    try {
+      const response = await fetch(
+        `https://swe.mldljyh.tech/api/projects/${projectId}/statistics/issuesPerFixer`,
+        {
+          method: "GET",
         }
-        acc[day][issue.status]++;
-        return acc;
-      },
-      {} as WeeklyIssues
-    );
+      );
+      if (response.ok) {
+        const data = await response.json();
 
-    // 날짜 순으로 정렬 추가
-    const sortedData: SortedDataType[] = Object.entries(groupedByDay)
-      .map(([day, statuses]) => ({
-        day,
-        NEW: statuses.NEW,
-        ASSIGNED: statuses.ASSIGNED,
-        FIXED: statuses.FIXED,
-        RESOLVED: statuses.RESOLVED,
-        CLOSED: statuses.CLOSED,
-        REOPENED: statuses.REOPENED,
-      }))
-      .sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
+        const assigneeArray = Object.entries(data).map(
+          ([assignee, statuses]) => ({
+            assignee,
+            ...(statuses as object),
+          })
+        );
 
-    const maxValues = sortedData.map((d) => {
-      const values = Object.values(d).slice(1);
-      return Math.max(...values.map((value) => value as number));
-    });
-
-    const maxYValue = Math.max(...maxValues) + 2; // 데이터의 최대값보다 큰 값
-
-    return { sortedData, maxYValue };
+        // 가장 많은 이슈를 처리한 상위 3명의 담당자 선택
+        const top3Assignees = assigneeArray
+          .slice(0, 3);
+        setAssigneeIssueCount(top3Assignees);
+      } else {
+        console.error("Error fetching issues per fixer");
+      }
+    } catch (error) {
+      console.error("Error fetching issues per fixer:", error);
+    }
   };
 
-  const calculateAssigneeIssueCount = (issues: Issue[]) => {
-    const assigneeIssueCount = issues.reduce(
-      (
-        acc: { [key: string]: { RESOLVED: number; CLOSED: number } },
-        issue: Issue
-      ) => {
-        if (issue.status === "RESOLVED" || issue.status === "CLOSED") {
-          const assignee = issue.assigneeUsername as string;
-          if (!acc[assignee]) {
-            acc[assignee] = { RESOLVED: 0, CLOSED: 0 };
-          }
-          acc[assignee][issue.status]++;
+  const fetchTopCommentIssues = async () => {
+    try {
+      const response = await fetch(
+        `https://swe.mldljyh.tech/api/projects/${projectId}/statistics/issuesOrderByComments`,
+        {
+          method: "GET",
         }
-        return acc;
-      },
-      {}
-    );
+      );
 
-    const assigneeArray = Object.entries(assigneeIssueCount).map(
-      ([assignee, statuses]) => ({
-        assignee,
-        ...statuses,
-      })
-    );
-
-    // 가장 많은 이슈를 처리한 상위 3명의 담당자 선택
-    const top3Assignees = assigneeArray
-      .sort((a, b) => b.RESOLVED + b.CLOSED - (a.RESOLVED + a.CLOSED))
-      .slice(0, 3);
-
-    return top3Assignees;
-  };
-
-  const calculateTopCommentIssues = (issues: Issue[], commentsData: any[]) => {
-    const issuesWithComments = issues.map((issue, index) => ({
-      ...issue,
-      comments: commentsData[index] || [],
-    }));
-
-    const filteredIssues = issuesWithComments.filter(
-      (issue) =>
-        issue.status === "ASSIGNED" ||
-        issue.status === "NEW" ||
-        issue.status === "REOPENED" ||
-        issue.status === "FIXED"
-    );
-
-    const issuesWithCommentCount = filteredIssues.map((issue) => ({
-      title: issue.title,
-      comments: issue.comments.length, // comments의 length를 확인
-    }));
-
-    // comment가 가장 많은 상위 3개의 이슈 선택
-    const top3CommentIssues = issuesWithCommentCount
-      .sort((a, b) => b.comments - a.comments)
-      .slice(0, 3);
-
-    return top3CommentIssues;
+      if (response.ok) {
+        const data = await response.json();
+        const top3CommentIssues = Object.entries(data)
+          .map(([title, comments]) => ({
+            title,
+            comments,
+          }))
+          .slice(0, 3);
+        setTopCommentIssues(top3CommentIssues);
+      } else {
+        console.error("Error fetching top comment issues");
+      }
+    } catch (error) {
+      console.error("Error fetching top comment issues:", error);
+    }
   };
 
   const statusColorMap: { [key in Status]: string } = {
@@ -351,7 +230,7 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                       Remaining Issues
                     </div>
                     <div className="font-bold text-3xl">
-                      {remainingIssueCount}
+                      {issueStatistics.REMAINING}
                     </div>
                   </div>
                   <div className="p-2 text-center border-r">
@@ -359,7 +238,7 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                       Resolved Issues
                     </div>
                     <div className="font-bold text-3xl">
-                      {resolvedIssueCount}
+                      {issueStatistics.RESOLVED}
                     </div>
                   </div>
                   <div className="p-2 text-center border-r">
@@ -367,7 +246,7 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                       Assigned Issues
                     </div>
                     <div className="font-bold text-3xl">
-                      {assignedIssueCount}
+                      {issueStatistics.ASSIGNED}
                     </div>
                   </div>
                   <div className="p-2 text-center border-r">
@@ -375,14 +254,16 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                       Unassigned Issues
                     </div>
                     <div className="font-bold text-3xl">
-                      {unassignedIssueCount}
+                      {issueStatistics.UNASSIGNED}
                     </div>
                   </div>
                   <div className="p-2 text-center">
                     <div className="text-sm text-gray-600 mb-2">
                       Registered Issues
                     </div>
-                    <div className="font-bold text-3xl">{issueCount}</div>
+                    <div className="font-bold text-3xl">
+                      {issueStatistics["Registered Issues"]}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -428,15 +309,43 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                         tickPadding: 16,
                         tickValues: Array.from(
                           {
-                            length: maxYValue + 3,
-                          },
+                            length:
+                              Math.ceil(
+                                Math.max(
+                                  ...weeklyIssues.map((d) =>
+                                    Math.max(
+                                      d.NEW,
+                                      d.ASSIGNED,
+                                      d.FIXED,
+                                      d.RESOLVED,
+                                      d.CLOSED,
+                                      d.REOPENED
+                                    )
+                                  )
+                                )
+                              ) + 2,
+                          }, // 최대값을 포함하도록 tickValues 설정
                           (_, i) => i * yTickUnit
                         ),
                       }}
                       gridYValues={Array.from(
                         {
-                          length: maxYValue + 3,
-                        },
+                          length:
+                            Math.ceil(
+                              Math.max(
+                                ...weeklyIssues.map((d) =>
+                                  Math.max(
+                                    d.NEW,
+                                    d.ASSIGNED,
+                                    d.FIXED,
+                                    d.RESOLVED,
+                                    d.CLOSED,
+                                    d.REOPENED
+                                  )
+                                )
+                              )
+                            ) + 2,
+                        }, // 최대값을 포함하도록 gridYValues 설정
                         (_, i) => i * yTickUnit
                       )}
                       theme={{
@@ -597,7 +506,9 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                                 length:
                                   Math.ceil(
                                     Math.max(
-                                      ...topCommentIssues.map((d) => d.comments)
+                                      ...topCommentIssues.map(
+                                        (d) => d.comments
+                                      )
                                     )
                                   ) + 2,
                               }, // 최대값을 포함하도록 tickValues 설정
@@ -609,7 +520,9 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                               length:
                                 Math.ceil(
                                   Math.max(
-                                    ...topCommentIssues.map((d) => d.comments)
+                                    ...topCommentIssues.map(
+                                      (d) => d.comments
+                                    )
                                   )
                                 ) + 2,
                             }, // 최대값을 포함하도록 gridYValues 설정

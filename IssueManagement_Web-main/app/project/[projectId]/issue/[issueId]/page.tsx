@@ -19,7 +19,6 @@ import { useCookies } from "react-cookie";
 import { useRouter, useParams } from "next/navigation";
 import DeleteConfirmDialog from "@/components/ui/DeleteConfirmDialog";
 import { EditIssueForm } from "@/components/updateIssue";
-import { set } from "lodash";
 
 export default function IssueDetailsPage() {
   const router = useRouter();
