@@ -13,18 +13,51 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+type Priority = "BLOCKER" | "CRITICAL" | "MAJOR" | "MINOR" | "TRIVIAL";
+type Status = "NEW" | "ASSIGNED" | "FIXED" | "RESOLVED" | "CLOSED" | "REOPENED";
+
+type Comment = {
+  id: number;
+  content: string;
+  username: string;
+  createdAt: string; // ISO 포맷 문자열로 가정
+  issue: Issue; // 순환 참조를 피하기 위해 필요시 빼고 정의 가능
+};
+
+type Project = {
+  id: number;
+  name: string;
+  issue: Issue[];
+};
+
+type Issue = {
+  id: number;
+  title: string;
+  description: string;
+  reporterUsername: String;
+  reportedDate: string; // ISO 포맷 문자열로 가정
+  fixerUsername: String;
+  assigneeUsername: String;
+  priority: Priority;
+  status: Status;
+  comments: Comment[];
+  project: Project;
+};
+
 interface CommentDialogProps {
   projectId: string;
   issueId: string;
+  initialComments: Comment[];
   user: any; // 로그인 중인 사용자 정보
 }
 
 const CommentDialog: React.FC<CommentDialogProps> = ({
   projectId,
   issueId,
+  initialComments,
   user,
 }) => {
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>(initialComments || []); 
   const [newComment, setNewComment] = useState("");
   const [commentToEdit, setCommentToEdit] = useState<any>(null);
   const [editCommentContent, setEditCommentContent] = useState("");
@@ -98,7 +131,6 @@ const CommentDialog: React.FC<CommentDialogProps> = ({
           },
           body: JSON.stringify({
             content: editCommentContent,
-            updatedAt: new Date().toISOString(),
           }),
           credentials: "include",
         }
@@ -204,7 +236,7 @@ const CommentDialog: React.FC<CommentDialogProps> = ({
                     </div>
                     <p className="mt-2.5 text-xs text-gray-500 dark:text-gray-400">
                       {new Date(
-                        comment.updatedAt || comment.createdAt
+                        comment.createdAt
                       ).toLocaleString()}
                     </p>
                   </div>
