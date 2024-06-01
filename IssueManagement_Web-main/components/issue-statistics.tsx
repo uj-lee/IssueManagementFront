@@ -435,7 +435,7 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                                     )
                                   )
                                 ) + 1,
-                            }, // 최대값을 포함하도록 tickValues 설정
+                            }, // 최대값을 포함하도록 gridValues 설정
                             (_, i) => i * yTickUnit
                           )}
                           theme={{
@@ -491,7 +491,12 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                           axisBottom={{
                             tickSize: 0,
                             tickPadding: 16,
-                            format: (d: string) => d,
+                            format: (d: string) => {
+                              const words = d.split(" ");
+                              return words.length > 2
+                                ? words.slice(0, 2).join(" ") + "..."
+                                : d; // 두 단어만 가져오고 뒤에 "..." 추가
+                            },
                             legendPosition: "middle",
                             legendOffset: 70,
                           }}
