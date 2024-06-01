@@ -110,12 +110,11 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
       );
       if (response.ok) {
         const data = await response.json();
-        const sortedData = Object.entries(data)
-          .map(([day, statuses]) => ({
-            day,
-            ...(statuses as object),
-          }))
-         setWeeklyIssues(sortedData);
+        const sortedData = Object.entries(data).map(([day, statuses]) => ({
+          day,
+          ...(statuses as object),
+        }));
+        setWeeklyIssues(sortedData);
       } else {
         console.error("Error fetching weekly issues");
       }
@@ -143,8 +142,7 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
         );
 
         // 가장 많은 이슈를 처리한 상위 3명의 담당자 선택
-        const top3Assignees = assigneeArray
-          .slice(0, 3);
+        const top3Assignees = assigneeArray.slice(0, 3);
         setAssigneeIssueCount(top3Assignees);
       } else {
         console.error("Error fetching issues per fixer");
@@ -312,18 +310,17 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                             length:
                               Math.ceil(
                                 Math.max(
-                                  ...weeklyIssues.map((d) =>
-                                    Math.max(
-                                      d.NEW,
-                                      d.ASSIGNED,
-                                      d.FIXED,
-                                      d.RESOLVED,
-                                      d.CLOSED,
+                                  ...weeklyIssues.map(
+                                    (d) =>
+                                      d.NEW +
+                                      d.ASSIGNED +
+                                      d.FIXED +
+                                      d.RESOLVED +
+                                      d.CLOSED +
                                       d.REOPENED
-                                    )
                                   )
                                 )
-                              ) + 2,
+                              ) + 1,
                           }, // 최대값을 포함하도록 tickValues 설정
                           (_, i) => i * yTickUnit
                         ),
@@ -333,18 +330,17 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                           length:
                             Math.ceil(
                               Math.max(
-                                ...weeklyIssues.map((d) =>
-                                  Math.max(
-                                    d.NEW,
-                                    d.ASSIGNED,
-                                    d.FIXED,
-                                    d.RESOLVED,
-                                    d.CLOSED,
+                                ...weeklyIssues.map(
+                                  (d) =>
+                                    d.NEW +
+                                    d.ASSIGNED +
+                                    d.FIXED +
+                                    d.RESOLVED +
+                                    d.CLOSED +
                                     d.REOPENED
-                                  )
                                 )
                               )
-                            ) + 2,
+                            ) + 1,
                         }, // 최대값을 포함하도록 gridYValues 설정
                         (_, i) => i * yTickUnit
                       )}
@@ -419,11 +415,12 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                                 length:
                                   Math.ceil(
                                     Math.max(
-                                      ...assigneeIssueCount.map((d) =>
-                                        Math.max(d.RESOLVED, d.CLOSED)
+                                      ...assigneeIssueCount.map(
+                                        (d) =>
+                                          (d.RESOLVED || 0) + (d.CLOSED || 0)
                                       )
                                     )
-                                  ) + 2,
+                                  ) + 1,
                               }, // 최대값을 포함하도록 tickValues 설정
                               (_, i) => i * yTickUnit
                             ),
@@ -433,12 +430,12 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                               length:
                                 Math.ceil(
                                   Math.max(
-                                    ...assigneeIssueCount.map((d) =>
-                                      Math.max(d.RESOLVED, d.CLOSED)
+                                    ...assigneeIssueCount.map(
+                                      (d) => (d.RESOLVED || 0) + (d.CLOSED || 0)
                                     )
                                   )
-                                ) + 2,
-                            }, // 최대값을 포함하도록 gridYValues 설정
+                                ) + 1,
+                            }, // 최대값을 포함하도록 tickValues 설정
                             (_, i) => i * yTickUnit
                           )}
                           theme={{
@@ -506,9 +503,7 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                                 length:
                                   Math.ceil(
                                     Math.max(
-                                      ...topCommentIssues.map(
-                                        (d) => d.comments
-                                      )
+                                      ...topCommentIssues.map((d) => d.comments)
                                     )
                                   ) + 2,
                               }, // 최대값을 포함하도록 tickValues 설정
@@ -520,9 +515,7 @@ const StatisticsDialog: React.FC<StatisticsDialogProps> = ({ projectName }) => {
                               length:
                                 Math.ceil(
                                   Math.max(
-                                    ...topCommentIssues.map(
-                                      (d) => d.comments
-                                    )
+                                    ...topCommentIssues.map((d) => d.comments)
                                   )
                                 ) + 2,
                             }, // 최대값을 포함하도록 gridYValues 설정
