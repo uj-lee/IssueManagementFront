@@ -57,7 +57,7 @@ const CommentDialog: React.FC<CommentDialogProps> = ({
   initialComments,
   user,
 }) => {
-  const [comments, setComments] = useState<Comment[]>(initialComments || []); 
+  const [comments, setComments] = useState<Comment[]>(initialComments || []);
   const [newComment, setNewComment] = useState("");
   const [commentToEdit, setCommentToEdit] = useState<any>(null);
   const [editCommentContent, setEditCommentContent] = useState("");
@@ -235,13 +235,11 @@ const CommentDialog: React.FC<CommentDialogProps> = ({
                       <p className="font-medium">{comment.username}</p>
                     </div>
                     <p className="mt-2.5 text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(
-                        comment.createdAt
-                      ).toLocaleString()}
+                      {new Date(comment.createdAt).toLocaleString()}
                     </p>
                   </div>
-                  <div className="flex">
-                    <p className="grow ml-2 text-sm">{comment.content}</p>
+                  <div>
+                    <p className="w-full text-sm">{comment.content}</p>
                     <div className="flex justify-end space-x-2">
                       {user &&
                         (user.role === "ADMIN" ||
@@ -250,7 +248,7 @@ const CommentDialog: React.FC<CommentDialogProps> = ({
                             <Button
                               size="xs"
                               variant="outline"
-                              className="p-1 text-xs"
+                              className="p-1 text-xs h-8"
                               onClick={() => {
                                 setCommentToEdit(comment);
                                 setEditCommentContent(comment.content);
@@ -263,7 +261,7 @@ const CommentDialog: React.FC<CommentDialogProps> = ({
                                 <Button
                                   size="xs"
                                   variant="destructive"
-                                  className="p-1 text-xs"
+                                  className="p-1 text-xs h-8"
                                 >
                                   Delete
                                 </Button>
