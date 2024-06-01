@@ -23,6 +23,8 @@ import Image from "next/image";
 import CommentDialog from "@/components/commentDialog";
 import StatisticsDialog from "@/components/issue-statistics";
 import Reports from "@/components/reports";
+import debounce from 'lodash/debounce';
+
 type Priority = "BLOCKER" | "CRITICAL" | "MAJOR" | "MINOR" | "TRIVIAL";
 type Status = "NEW" | "ASSIGNED" | "FIXED" | "RESOLVED" | "CLOSED" | "REOPENED";
 type Role = "ADMIN" | "PL" | "DEV" | "TESTER";
@@ -37,8 +39,8 @@ type User = {
 type Comment = {
   id: number;
   content: string;
-  author: User;
-  createdDate: string; // ISO 포맷 문자열로 가정
+  username: string;
+  createdAt: string; // ISO 포맷 문자열로 가정
   issue: Issue; // 순환 참조를 피하기 위해 필요시 빼고 정의 가능
 };
 
@@ -77,13 +79,14 @@ export default function ProjectScreenPage() {
   const [filterReporter, setFilterReporter] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isNLSearched, setIsNLSearched] = useState(false);
+  const [commentsByIssueId, setCommentsByIssueId] = useState<{ [issueId: string]: Comment[] }>({});
 
   useEffect(() => {
     if (projectId) {
       fetchIssues();
       fetchCurrentUser();
     }
-  }, [projectId, searchQuery, selectedStatus, filterAssignee, filterReporter]);
+  }, [projectId]);
   //console.log(projectId)
 
   const fetchCurrentUser = async () => {
@@ -119,7 +122,18 @@ export default function ProjectScreenPage() {
       if (response.ok) {
         const data = await response.json();
         setAllIssues(data);
-        filterIssues(data); // 최초에 전체 이슈를 필터링합니다.
+        filterIssues(searchQuery, data); // 최초에 전체 이슈를 필터링합니다.
+        const commentsPromises = data.map((issue: Issue) => 
+          fetch(`https://swe.mldljyh.tech/api/projects/${projectId}/issues/${issue.id}/comments`)
+            .then(res => res.json())
+            .then(comments => ({ [issue.id]: comments })) // Store comments by issue ID
+        );
+
+        Promise.all(commentsPromises)
+          .then(commentsArray => {
+            const allComments = commentsArray.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+            setCommentsByIssueId(allComments); 
+          });
       } else {
         throw new Error("Failed to fetch issues");
       }
@@ -127,71 +141,74 @@ export default function ProjectScreenPage() {
       console.error("Error fetching issues:", error);
     }
   };
+  const debouncedSearch = useCallback(
+    debounce(async (query) => {
+      if (query.startsWith("/ai ") && query.endsWith("/")) {
+        // 자연어 검색 처리
+        const userMessage = query.slice(4).trim().slice(0, -1).trim(); // "/ai " 이후의 문자열 추출 및 마지막 '/' 제거
+        setIsNLSearched(true);  // 자연어 검색 상태 설정
+        try {
+          const response = await fetch(
+            `https://swe.mldljyh.tech/api/projects/${projectId}/issues/searchbynl?userMessage=${userMessage}`,
+            {
+              method: "GET",
+              credentials: "include",
+            }
+          );
 
-  const handleSearch = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): Promise<void> => {
+          if (response.ok) {
+            const data = await response.json();
+            setFilteredIssues(data);
+          } else {
+            throw new Error("이슈 검색에 실패했습니다.");
+          }
+        } catch (error) {
+          console.error("이슈 검색 실패:", error);
+        } finally {
+          setIsNLSearched(false);  // 기존 검색으로 전환 시 자연어 검색 상태 해제
+        }
+      } else {
+        // 기존 검색 로직 유지
+        setIsNLSearched(false);  // 기존 검색으로 전환 시 자연어 검색 상태 해제
+        filterIssues(query);
+      }
+    }, 300),
+    [projectId, allIssues, selectedStatus, filterAssignee, filterReporter, user]
+  );
+  
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchQuery(query);
-
-    if (query.startsWith("/ai ") && query.endsWith("/")) {
-      // 자연어 검색 처리
-      const userMessage = query.slice(4).trim().slice(0, -1).trim(); // "/ai " 이후의 문자열 추출 및 마지막 '/' 제거
-      setIsNLSearched(true);  // 자연어 검색 상태 설정
-      try {
-        const response = await fetch(
-          `https://swe.mldljyh.tech/api/projects/${projectId}/issues/searchbynl?userMessage=${userMessage}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setFilteredIssues(data);
-        } else {
-          throw new Error("이슈 검색에 실패했습니다.");
-        }
-      } catch (error) {
-        console.error("이슈 검색 실패:", error);
-      } finally {
-        setIsNLSearched(false);  // 기존 검색으로 전환 시 자연어 검색 상태 해제
-      }
-    } else {
-      // 기존 검색 로직 유지
-      setIsNLSearched(false);  // 기존 검색으로 전환 시 자연어 검색 상태 해제
-      filterIssues();
-    }
+    debouncedSearch(query);
   };
-  
 
-  const filterIssues = useCallback((issues = allIssues) => {
+  const filterIssues = useCallback((query: string, issues = allIssues) => {
     if (isNLSearched) return;
     const filtered = issues.filter((issue) => {
-      const matchesTitle = issue.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesTitle = issue.title.toLowerCase().includes(query.toLowerCase());
       const matchesStatus = selectedStatus ? issue.status === selectedStatus : true;
       const matchesAssignee = filterAssignee ? issue.assigneeUsername === user?.username : true;
       const matchesReporter = filterReporter ? issue.reporterUsername === user?.username : true;
       return matchesTitle && matchesStatus && matchesAssignee && matchesReporter;
     });
     setFilteredIssues(filtered);
-  }, [allIssues, searchQuery, selectedStatus, filterAssignee, filterReporter]);
+  }, [allIssues, selectedStatus, filterAssignee, filterReporter, user]);
+
+  useEffect(() => {
+    filterIssues(searchQuery, allIssues);
+  }, [selectedStatus, filterAssignee, filterReporter, user]);
 
   const handleStatusClick = (status: Status | null) => {
     setSelectedStatus(status);
-    filterIssues(allIssues);
-    setDropdownOpen(false); // 드롭다운 닫기
   };
 
   const handleAssigneeFilterClick = () => {
     setFilterAssignee((prev) => !prev);
   };
-  
-  const handleReporterFilterClick = () => {
-    setFilterReporter(!filterReporter);
-  };
 
+  const handleReporterFilterClick = () => {
+    setFilterReporter((prev) => !prev);
+  };
 
   const handleLogout = () => {
     removeCookie("memberId", { path: "/" });
@@ -377,10 +394,9 @@ export default function ProjectScreenPage() {
                           {issue.title}
                         </Link>
                         <CommentDialog
-                          projectId={
-                            Array.isArray(projectId) ? projectId[0] : projectId
-                          }
+                          projectId={Array.isArray(projectId) ? projectId[0] : projectId}
                           issueId={issue.id.toString()}
+                          initialComments={commentsByIssueId[issue.id] || []} // Pass initialComments from state
                           user={user}
                         />
                       </TableCell>
