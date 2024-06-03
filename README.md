@@ -1,4 +1,4 @@
-![header](https://capsule-render.vercel.app/api?type=transparent&color=blue&height=300&section=header&text=Issue%20Management%20System%20Front&textBg=true&fontSize=50&fontColor=ffee00)
+![header](https://capsule-render.vercel.app/api?type=cylinder&color=gradient&customColorList=4&height=150&section=header&text=Issue%20Management%20System%20Front&fontSize=50&fontColor=ffffff)
 
 ### 🔗웹 사이트 링크
 [issueManagementSystem](https://issue.mldljyh.tech/)  
@@ -26,7 +26,7 @@
   <img width="885" alt="Untitled (1)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/16bdb915-fafb-45c2-b138-e5f38c711719">
   
 5. My Page
-  <img width="885" alt="Untitled (11)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/1c698573-29e0-4381-bcaa-b734a8fb81b0">
+  <img width="885" alt="Untitled (11)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/f77a67ed-2a4f-4945-980a-577648caecbb">
   
 
 ### ⏰ Frontend 개발 기간
