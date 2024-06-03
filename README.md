@@ -39,9 +39,9 @@
 - 이석진 (백엔드)
 - 조광재 (백엔드)
 
-### 📌 기술
+### 📌 프론트엔드 사용 기술
 - JavaScript, Next.js, React, CSS
 
-### 📌 백엔드 깃허브 주소 [ - 바로가기]- (https://github.com/kendsi/IssueManagementBackend)
+### 📌 백엔드 깃허브 주소 [ - 바로가기](https://github.com/kendsi/IssueManagementBackend)
 
-### 📌 콘솔 깃허브 주소 [ - 바로가기]- (https://github.com/mldljyh/IssueManagement_Console)
+### 📌 콘솔 깃허브 주소 [ - 바로가기](https://github.com/mldljyh/IssueManagement_Console)
