@@ -1,4 +1,4 @@
-![header](https://capsule-render.vercel.app/api?type=transparent&color=auto&height=300&section=header&text=Issue%20Management%20System%20Front&desc=%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4%EA%B3%B5%ED%95%99%20Team3%EC%9D%98%20frontend%20github%EC%9E%85%EB%8B%88%EB%8B%A4.&textBg=true&fontSize=90&fontColor=ffee00)
+![header](https://capsule-render.vercel.app/api?type=transparent&color=blue&height=300&section=header&text=Issue%20Management%20System%20Front&textBg=true&fontSize=50&fontColor=ffee00)
 
 ### 🔗웹 사이트 링크
 [issueManagementSystem](https://issue.mldljyh.tech/)  
