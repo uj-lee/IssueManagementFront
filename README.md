@@ -1,5 +1,7 @@
 ![header](https://capsule-render.vercel.app/api?type=cylinder&color=gradient&customColorList=4&height=150&section=header&text=Issue%20Management%20System%20Front&fontSize=50&fontColor=ffffff)
 
+# CAU SWE Term Project - Team3
+
 ### 🔗웹 사이트 링크
 [issueManagementSystem](https://issue.mldljyh.tech/)  
 
