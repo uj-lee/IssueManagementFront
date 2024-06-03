@@ -1,4 +1,4 @@
-## Issue Management System Frontend
+<img src="https://capsule-render.vercel.app/api?type=transparent&color=auto&height=300&section=header&text=Issue%20Management%20System%20Front&desc=소프트웨어공학 Team3의 frontend github입니다.&textBg=true&fontSize=90&fontColor=ffee00"/>
 
 ### 🔗웹 사이트 링크
 [issueManagementSystem](https://issue.mldljyh.tech/)  
@@ -12,32 +12,17 @@
 - Admin: 시스템 관리 및 사용자 계정을 관리한다.
 - Tester: 이슈를 보고하거나 테스트를 진행한다.
 
-### 📷 웹 페이지 사진 설명
+### 📷 웹 페이지 요약
 1. Login Page
-  <img src="https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/500ef4bb-28f1-4538-9422-2d825f352a2f/Untitled.png"  width="700" height="370">
+  <img width="885" alt="Untitled (1)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/af4f7431-806d-442a-abd3-cc11e4341ff2">
 2. Project List Page
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/7eebb890-813c-44f2-b954-8814e550cd0c/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/373d855c-36df-46a7-a873-ba7a57d64399/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/e6b7a866-4b0f-4e48-bb7a-5ead535282f6/Untitled.png)
+  <img width="885" alt="Untitled (1)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/526cb472-38e4-476f-9c60-efa067ffb7a3">
 3. Issue List Page
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/d1c2248c-3a32-465d-a336-616d2826adc2/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/29aae110-a0e5-4bc8-903a-16cca9425ab8/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/c395297f-b1f4-4f70-b363-49b9c6358748/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/71423f54-56a1-424f-aae5-3cee7746370d/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/5bd82d06-7ab1-48fd-ae6d-00726201b9be/Untitled.png)
+  <img width="885" alt="Untitled (1)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/b27606a4-9d86-4500-9af4-08adf536366c">
 4. Issue Detail Page
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/c57230d4-d80e-45e2-b059-c0525cdcccc0/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/a0d4a0e3-6ecc-49e3-94d1-03ad025c5516/Untitled.png)
+  <img width="885" alt="Untitled (1)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/16bdb915-fafb-45c2-b138-e5f38c711719">
 5. My Page
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/1b9c0ce4-4a0f-4368-8f68-d0fe59d3d421/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/75d23b3b-956b-49cb-aa7d-66bb85ee8a72/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/c8778770-931f-4db2-95a9-7a029d12b26b/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/165375cd-3adb-4d0d-bad8-2ef2c0b275e5/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/b2131dd6-329f-4557-a7bd-1a444f38154e/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/0837ee9a-8672-4342-b0b6-4005167848af/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/08e5d378-b949-4a7c-a9b6-7146edf28dde/Untitled.png)
-   ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/09aeed3b-c535-4c8b-b8f3-60bad44290b2/843ab353-217a-40c7-9eca-1ed32e8e1e74/Untitled.png)
-   
+  <img width="885" alt="Untitled (11)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/1c698573-29e0-4381-bcaa-b734a8fb81b0">
 
 ### ⏰ Frontend 개발 기간
 2024년 5월 20일 ~ 2024년 6월 3일  
