@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
@@ -286,17 +286,17 @@ export default function IssueDetailsPage() {
         setAssigneeUsername(data.assigneeUsername); // 담당자 반영
       } else if (response.status === 401) {
         alert("No permission to update issue assignee.");
-        setAssigneeUsername(issue.assigneeUsername)
+        setAssigneeUsername(issue.assigneeUsername);
       } else {
         const errorData = await response.json();
         console.error("Failed to update issue assignee:", errorData);
         alert("Failed to update issue assignee.");
-        setAssigneeUsername(issue.assigneeUsername)
+        setAssigneeUsername(issue.assigneeUsername);
       }
     } catch (error) {
       console.error("Error updating issue assignee:", error);
       alert("An error occurred while updating the issue assignee.");
-      setAssigneeUsername(issue.assigneeUsername)
+      setAssigneeUsername(issue.assigneeUsername);
     }
   };
 
@@ -496,7 +496,9 @@ export default function IssueDetailsPage() {
                 <div className="space-y-4">
                   <h2 className="text-lg font-semibold">Description</h2>
                   <div className="prose prose-sm dark:prose-invert">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{issue.description}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {issue.description}
+                    </ReactMarkdown>
                   </div>
                 </div>
                 <Separator />
@@ -514,48 +516,62 @@ export default function IssueDetailsPage() {
                         </Avatar>
                         <div className="flex-1 space-y-2">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium">{comment.username}</p>
+                            <p className="text-sm font-medium">
+                              {comment.username}
+                            </p>
                             <div className="flex items-center gap-2">
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {new Date(comment.updatedAt || comment.createdAt).toLocaleString()}
+                                {new Date(
+                                  comment.updatedAt || comment.createdAt
+                                ).toLocaleString()}
                               </p>
-                              {user && (user.role === "ADMIN" || user.username === comment.username) && (
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={() => {
-                                      setCommentToEdit(comment);
-                                      setEditCommentContent(comment.content);
-                                    }}
-                                  >
-                                    <EditIcon className="h-4 w-4" />
-                                    <span className="sr-only">Edit comment</span>
-                                  </Button>
-                                  <DeleteConfirmDialog
-                                    trigger={
-                                      <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        onClick={() => setCommentToDelete(comment)}
-                                      >
-                                        <TrashIcon className="h-4 w-4" />
-                                        <span className="sr-only">Delete comment</span>
-                                      </Button>
-                                    }
-                                    title="Delete Comment"
-                                    description="Are you sure you want to delete this comment?"
-                                    onConfirm={handleDeleteComment}
-                                  />
-                                </div>
-                              )}
+                              {user &&
+                                (user.role === "ADMIN" ||
+                                  user.username === comment.username) && (
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      onClick={() => {
+                                        setCommentToEdit(comment);
+                                        setEditCommentContent(comment.content);
+                                      }}
+                                    >
+                                      <EditIcon className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        Edit comment
+                                      </span>
+                                    </Button>
+                                    <DeleteConfirmDialog
+                                      trigger={
+                                        <Button
+                                          size="icon"
+                                          variant="ghost"
+                                          onClick={() =>
+                                            setCommentToDelete(comment)
+                                          }
+                                        >
+                                          <TrashIcon className="h-4 w-4" />
+                                          <span className="sr-only">
+                                            Delete comment
+                                          </span>
+                                        </Button>
+                                      }
+                                      title="Delete Comment"
+                                      description="Are you sure you want to delete this comment?"
+                                      onConfirm={handleDeleteComment}
+                                    />
+                                  </div>
+                                )}
                             </div>
                           </div>
                           {commentToEdit && commentToEdit.id === comment.id ? (
                             <div className="flex flex-col gap-2">
                               <Textarea
                                 value={editCommentContent}
-                                onChange={(e) => setEditCommentContent(e.target.value)}
+                                onChange={(e) =>
+                                  setEditCommentContent(e.target.value)
+                                }
                               />
                               <div className="flex justify-end space-x-2">
                                 <Button
@@ -577,7 +593,9 @@ export default function IssueDetailsPage() {
                             </div>
                           ) : (
                             <div className="flex">
-                              <p className="text-sm grow mr-3">{comment.content}</p>
+                              <p className="text-sm grow mr-3">
+                                {comment.content}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -601,67 +619,81 @@ export default function IssueDetailsPage() {
               </div>
             </div>
             <div className="space-y-4">
-            <Card className="p-6 shadow-md rounded-lg max-w-md mx-auto">
-              <CardHeader className="mb-4">
-                <CardTitle className="text-lg font-semibold">Update Status</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <Label id="status-label" className="block mb-2 text-sm font-medium text-gray-700">Status</Label>
-                  <Select
-                    value={status}
-                    aria-labelledby="status-label"
-                    onValueChange={setStatus}
-                  >
-                    <SelectTrigger className="w-full border-gray-300 rounded-md">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="NEW">New</SelectItem>
-                      <SelectItem value="ASSIGNED">Assigned</SelectItem>
-                      <SelectItem value="FIXED">Fixed</SelectItem>
-                      <SelectItem value="RESOLVED">Resolved</SelectItem>
-                      <SelectItem value="CLOSED">Closed</SelectItem>
-                      <SelectItem value="REOPENED">Reopened</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button 
-                  onClick={handleUpdateStatus} 
-                  className="w-full text-white py-2 rounded-md"
-                >
-                  Update Status
-                </Button>
-                <div>
-                  <Label id="assignee-label" className="block mb-2 text-sm font-medium text-gray-700">Assignee</Label>
-                  <Select
-                    value={assigneeUsername || ""}
-                    aria-labelledby="assignee-label"
-                    onValueChange={(value) => setAssigneeUsername(value)}
-                  >
-                    <SelectTrigger className="w-full border-gray-300 rounded-md">
-                      <SelectValue placeholder="Select assignee" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {devUsers.map((dev) => (
-                        <SelectItem key={dev.id} value={dev.username}>
-                          {dev.username}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button 
-                  onClick={handleUpdateAssignee} 
-                  className="w-full text-white py-2 rounded-md"
-                >
-                  Update Assignee
-                </Button>
-              </CardContent>
-            </Card>
               <Card className="p-6 shadow-md rounded-lg max-w-md mx-auto">
                 <CardHeader className="mb-4">
-                  <CardTitle className="text-lg font-semibold">Recommended Assignees</CardTitle>
+                  <CardTitle className="text-lg font-semibold">
+                    Update Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <Label
+                      id="status-label"
+                      className="block mb-2 text-sm font-medium text-gray-700"
+                    >
+                      Status
+                    </Label>
+                    <Select
+                      value={status}
+                      aria-labelledby="status-label"
+                      onValueChange={setStatus}
+                    >
+                      <SelectTrigger className="w-full border-gray-300 rounded-md">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="NEW">New</SelectItem>
+                        <SelectItem value="ASSIGNED">Assigned</SelectItem>
+                        <SelectItem value="FIXED">Fixed</SelectItem>
+                        <SelectItem value="RESOLVED">Resolved</SelectItem>
+                        <SelectItem value="CLOSED">Closed</SelectItem>
+                        <SelectItem value="REOPENED">Reopened</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    onClick={handleUpdateStatus}
+                    className="w-full text-white py-2 rounded-md"
+                  >
+                    Update Status
+                  </Button>
+                  <div>
+                    <Label
+                      id="assignee-label"
+                      className="block mb-2 text-sm font-medium text-gray-700"
+                    >
+                      Assignee
+                    </Label>
+                    <Select
+                      value={assigneeUsername || ""}
+                      aria-labelledby="assignee-label"
+                      onValueChange={(value) => setAssigneeUsername(value)}
+                    >
+                      <SelectTrigger className="w-full border-gray-300 rounded-md">
+                        <SelectValue placeholder="Select assignee" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {devUsers.map((dev) => (
+                          <SelectItem key={dev.id} value={dev.username}>
+                            {dev.username}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    onClick={handleUpdateAssignee}
+                    className="w-full text-white py-2 rounded-md"
+                  >
+                    Update Assignee
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card className="p-6 shadow-md rounded-lg max-w-md mx-auto">
+                <CardHeader className="mb-4">
+                  <CardTitle className="text-lg font-semibold">
+                    Recommended Assignees
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex flex-col gap-4">
@@ -705,12 +737,14 @@ export default function IssueDetailsPage() {
           </div>
         </main>
         <footer className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-gray-900 border-t shrink-0 md:px-6 z-10 flex justify-end">
-          {user && user.role === "ADMIN" && (
-            <EditIssueForm
-              projectId={Number(projectId)}
-              issueId={Number(issueId)}
-            />
-          )}
+          {user &&
+            (user.role === "ADMIN" ||
+              user.username === issue.reporterUsername) && (
+              <EditIssueForm
+                projectId={Number(projectId)}
+                issueId={Number(issueId)}
+              />
+            )}
           <Button
             className="ml-2"
             variant="outline"
@@ -741,7 +775,7 @@ function EditIcon(props: React.SVGProps<SVGSVGElement>) {
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
     </svg>
-  )
+  );
 }
 function TrashIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -761,5 +795,5 @@ function TrashIcon(props: React.SVGProps<SVGSVGElement>) {
       <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
       <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
     </svg>
-  )
+  );
 }
