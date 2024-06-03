@@ -1,4 +1,4 @@
-<img src="https://capsule-render.vercel.app/api?type=transparent&color=auto&height=300&section=header&text=Issue%20Management%20System%20Front&desc=소프트웨어공학 Team3의 frontend github입니다.&textBg=true&fontSize=90&fontColor=ffee00"/>
+![header](https://capsule-render.vercel.app/api?type=transparent&color=auto&height=300&section=header&text=Issue%20Management%20System%20Front&desc=%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4%EA%B3%B5%ED%95%99%20Team3%EC%9D%98%20frontend%20github%EC%9E%85%EB%8B%88%EB%8B%A4.&textBg=true&fontSize=90&fontColor=ffee00)
 
 ### 🔗웹 사이트 링크
 [issueManagementSystem](https://issue.mldljyh.tech/)  
@@ -15,14 +15,19 @@
 ### 📷 웹 페이지 요약
 1. Login Page
   <img width="885" alt="Untitled (1)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/af4f7431-806d-442a-abd3-cc11e4341ff2">
+  
 2. Project List Page
   <img width="885" alt="Untitled (1)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/526cb472-38e4-476f-9c60-efa067ffb7a3">
+  
 3. Issue List Page
   <img width="885" alt="Untitled (1)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/b27606a4-9d86-4500-9af4-08adf536366c">
+  
 4. Issue Detail Page
   <img width="885" alt="Untitled (1)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/16bdb915-fafb-45c2-b138-e5f38c711719">
+  
 5. My Page
   <img width="885" alt="Untitled (11)" src="https://github.com/uj-lee/IssueManagementFront/assets/169251789/1c698573-29e0-4381-bcaa-b734a8fb81b0">
+  
 
 ### ⏰ Frontend 개발 기간
 2024년 5월 20일 ~ 2024년 6월 3일  
